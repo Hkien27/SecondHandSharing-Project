@@ -1,0 +1,437 @@
+@model SecondHandSharing.Models.ViewModels.MyRevenueViewModel
+
+@{
+    ViewData["Title"] = "Quản lý doanh thu";
+}
+
+<style>
+    .revenue-header {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-radius: 16px;
+        padding: 30px 28px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #222;
+        box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3);
+    }
+
+    .revenue-header h2 {
+        margin: 0 0 6px 0;
+        font-weight: 700;
+        font-size: 26px;
+    }
+
+    .revenue-header .subtitle {
+        font-size: 14px;
+        color: rgba(34, 34, 34, 0.7);
+    }
+
+    .revenue-total {
+        text-align: right;
+        font-size: 28px;
+        font-weight: 700;
+        color: #222;
+    }
+
+    .revenue-total .label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(34, 34, 34, 0.8);
+        margin-bottom: 4px;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #f8f9fa;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+        font-size: 15px;
+        color: #222;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Form Filters */
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-select, .form-control {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus, .form-control:focus {
+        border-color: #ffc107;
+        background-color: #fffbf0;
+        box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        outline: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        color: #222;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 10px 20px;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #ffb300 0%, #f57c00 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #ddd;
+        color: #666;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 10px 20px;
+        transition: all 0.2s;
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: #ffc107;
+        background-color: #fffbf0;
+        color: #222;
+    }
+
+    /* Monthly Stats Table */
+    .table {
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .table thead {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #eee;
+    }
+
+    .table thead th {
+        font-weight: 600;
+        color: #555;
+        padding: 14px;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 14px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.2s;
+    }
+
+    .table tbody tr:hover {
+        background-color: #fffbf0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    /* Product Row */
+    .product-row {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 16px 0;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+    }
+
+    .product-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .product-row:hover {
+        background-color: #fffbf0;
+    }
+
+    .product-image {
+        width: 90px;
+        flex-shrink: 0;
+    }
+
+    .product-image img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .product-info {
+        flex-grow: 1;
+        margin: 0 16px;
+    }
+
+    .product-title {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 4px;
+        font-size: 15px;
+    }
+
+    .product-meta {
+        font-size: 13px;
+        color: #999;
+    }
+
+    .product-action {
+        text-align: right;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        color: #222;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #ffb300 0%, #f57c00 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        color: #222;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .alert-danger {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    @@media (max-width: 768px) {
+        .revenue-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .revenue-total {
+            width: 100%;
+            text-align: left;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .product-row {
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .product-image {
+            width: 100%;
+        }
+
+        .product-info {
+            width: 100%;
+            margin: 0;
+        }
+
+        .product-action {
+            width: 100%;
+            text-align: left;
+        }
+    }
+</style>
+
+<div class="container my-4">
+    <!-- HEADER -->
+    <div class="revenue-header">
+        <div>
+            <h2>Quản lý doanh thu</h2>
+            <div class="subtitle">Theo dõi các sản phẩm đã bán trên nền tảng</div>
+        </div>
+        <div class="revenue-total">
+            <span class="label">Tổng doanh thu</span>
+            @Model.TotalRevenue.ToString("N0") đ
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <!-- BỘ LỌC NĂM / THÁNG -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="filter-form">
+                <div>
+                    <label class="form-label">Năm</label>
+                    <select name="year" class="form-select">
+                        <option value="">Tất cả năm</option>
+                        @foreach (var y in Model.Years)
+                        {
+                            <option value="@y" @@(Model.SelectedYear == y ? "selected" : "")>@y</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Tháng</label>
+                    <select name="month" class="form-select">
+                        <option value="">Tất cả tháng</option>
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            <option value="@m" @@(Model.SelectedMonth == m ? "selected" : "")>Tháng @m</option>
+                        }
+                    </select>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a asp-action="MyRevenue" class="btn btn-outline-secondary">Bỏ lọc</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- THỐNG KÊ DOANH THU THEO THÁNG -->
+    <div class="card">
+        <div class="card-header">
+            Thống kê doanh thu theo tháng
+            @if (Model.SelectedYear.HasValue)
+            {
+                <span style="color: #999; font-weight: 400; margin-left: 8px;">(Năm @Model.SelectedYear)</span>
+            }
+        </div>
+        <div class="card-body p-0">
+            @if (!Model.MonthlyStats.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div>Chưa có doanh thu trong năm này</div>
+                </div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Số sản phẩm đã bán</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.MonthlyStats)
+                        {
+                            <tr>
+                                <td>Tháng @m.Month / @m.Year</td>
+                                <td>@m.Count</td>
+                                <td style="color: #ff9800; font-weight: 600;">@m.Total.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <!-- DANH SÁCH SẢN PHẨM ĐÃ BÁN -->
+    <div class="card">
+        <div class="card-header">Danh sách sản phẩm đã bán</div>
+        <div class="card-body">
+            @if (!Model.SoldItems.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <div>Chưa có sản phẩm nào được bán trong khoảng thời gian đã chọn</div>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in Model.SoldItems)
+                {
+                    <div class="product-row">
+                        <div class="product-image">
+                            <img src="@item.Image" alt="@item.Title" />
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">@item.Title</div>
+                            <div class="product-meta">
+                                Giá bán: <strong>@item.Price.ToString("N0") đ</strong> • Bán ngày: @item.SoldAt?.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                        <div class="product-action">
+                            <form asp-action="RelistItem"
+                                  asp-route-id="@item.ItemId"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Đăng lại sản phẩm này?');">
+                                <button type="submit" class="btn btn-warning">
+                                    🔄 Đăng lại
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

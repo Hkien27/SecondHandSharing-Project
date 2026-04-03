@@ -1,0 +1,130 @@
+@model SecondHandSharing.Models.Item
+
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 text-center"><i class="fas fa-edit me-2"></i>Chỉnh sửa sản phẩm</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="ItemId" />
+
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề bài đăng</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-tag"></i></span>
+                                <input asp-for="Title" class="form-control" placeholder="Nhập tên sản phẩm..." />
+                            </div>
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Category" class="form-label fw-bold">Danh mục</label>
+                                <select asp-for="Category" class="form-select border-primary-subtle">
+                                    <option value="Đồ điện tử">Đồ điện tử</option>
+                                    <option value="Đồ gia dụng">Đồ gia dụng</option>
+                                    <option value="Thời trang">Thời trang</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Price" class="form-label fw-bold">Giá bán (VNĐ)</label>
+                                <div class="input-group">
+                                    <input asp-for="Price" class="form-control" type="number" />
+                                    <span class="input-group-text text-success fw-bold">₫</span>
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Condition" class="form-label fw-bold">Tình trạng máy</label>
+                                <input asp-for="Condition" class="form-control" placeholder="Ví dụ: Mới 99%, Cũ..." />
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Status" class="form-label fw-bold text-primary">Trạng thái hiển thị</label>
+                                <select asp-for="Status" class="form-select bg-light fw-bold">
+                                    <option value="Đang bán">🟢 Đang bán</option>
+                                    <option value="Đã bán">🔴 Đã bán</option>
+                                    <option value="Ẩn">⚪ Ẩn tin</option>
+                                </select>
+                                <small class="text-muted mt-1 d-block">Lưu ý: "Đã duyệt" sẽ giữ nguyên nếu không đổi trạng thái này.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả ngắn</label>
+                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Tóm tắt về sản phẩm..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ProductDetail" class="form-label fw-bold">Chi tiết sản phẩm</label>
+                            <textarea asp-for="ProductDetail" class="form-control" rows="5" placeholder="Mô tả kỹ hơn về cấu hình, thông số..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Address" class="form-label fw-bold">Địa chỉ giao dịch</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                <input asp-for="Address" class="form-control" placeholder="Số nhà, tên đường, quận/huyện..." />
+                            </div>
+                        </div>
+
+                        <div class="mb-4 p-3 bg-light rounded border">
+                            <label class="form-label fw-bold"><i class="fas fa-image me-2 text-primary"></i>Hình ảnh sản phẩm</label>
+                            <div class="d-flex align-items-center gap-4 mb-3">
+                                <div class="text-center">
+                                    <p class="small text-muted mb-1">Ảnh hiện tại</p>
+                                    <img src="@Model.Image" alt="Ảnh sản phẩm" style="width: 120px; height: 120px; object-fit: cover;" class="rounded border shadow-sm" />
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="small text-muted mb-1">Thay đổi ảnh mới (Nếu có)</p>
+                                    <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="MyItems" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-arrow-left me-2"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                                <i class="fas fa-save me-2"></i>Cập nhật ngay
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .form-control:focus, .form-select:focus {
+            border-color: #eba102;
+            box-shadow: 0 0 0 0.25rem rgba(240, 184, 1, 0.15);
+        }
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .input-group-text {
+            border-color: #f08a05;
+        }
+    </style>
+}

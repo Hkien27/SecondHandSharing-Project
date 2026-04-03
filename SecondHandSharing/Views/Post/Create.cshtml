@@ -1,0 +1,168 @@
+@{
+    ViewData["Title"] = "Đăng tin sản phẩm";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/create-product.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-left">
+                <button class="menu-btn">☰</button>
+                <div class="logo">Sắc</div>
+            </div>
+            <div class="header-center">
+                <div class="search-group">
+                    <select class="search-select">
+                        <option>Vị trí</option>
+                    </select>
+                    <select class="search-select">
+                        <option>Tất cả danh mục</option>
+                    </select>
+                    <select class="search-select">
+                        <option>Tìm kiếm</option>
+                    </select>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="search-btn">🔍</button>
+                <button class="post-btn">Đăng tin</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Title -->
+            <h1 class="page-title">Chọn sản phẩm của bạn</h1>
+
+            <!-- Category Selection -->
+            <div class="category-section">
+                <select class="category-select">
+                    <option>Danh mục</option>
+                    <option>Điện tử</option>
+                    <option>Quần áo</option>
+                    <option>Nội thất</option>
+                </select>
+                <select class="category-select">
+                    <option>Loại</option>
+                    <option>Mới</option>
+                    <option>Đã sử dụng</option>
+                </select>
+            </div>
+
+            <!-- Image Upload Area -->
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div class="upload-area" id="uploadArea">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <p class="upload-text">Tại đây để tải lên hình ảnh</p>
+                    <input type="file" id="imageInput" name="images" multiple accept="image/*" style="display: none;">
+                </div>
+
+                <!-- Image Preview -->
+                <div class="image-preview" id="imagePreview">
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                    <div class="image-placeholder"></div>
+                </div>
+
+                <!-- Product Form -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>Tên</label>
+                        <input type="text" name="name" class="form-input" placeholder="Tên sản phẩm" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea name="description" class="form-textarea" placeholder="Mô tả chi tiết sản phẩm" rows="6" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tên</label>
+                            <input type="text" name="productName" class="form-input" placeholder="Tên">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá</label>
+                            <input type="number" name="price" class="form-input" placeholder="Giá" required>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    @if (ViewBag.Error != null)
+                    {
+                        <p class="error-message">@ViewBag.Error</p>
+                    }
+
+                    <!-- Submit Button -->
+                    <div class="button-container">
+                        <button type="submit" class="submit-btn">Đăng</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="divider">
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>COMPANY INFO</h3>
+                <p>Về chúng tôi</p>
+            </div>
+            <div class="footer-column">
+                <h3>SERVICE</h3>
+                <p>Dịch vụ tư vấn</p>
+            </div>
+            <div class="footer-column">
+                <h3>Others</h3>
+            </div>
+            <div class="footer-column">
+                <h3>CONNECT US</h3>
+                <p style="margin-top: 40px;">Follow Us</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+
+        uploadArea.addEventListener('click', () => imageInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            imageInput.files = e.dataTransfer.files;
+        });
+    </script>
+</body>
+</html>

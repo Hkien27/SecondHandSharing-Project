@@ -1,0 +1,626 @@
+@model SecondHandSharing.Models.Item
+
+@{
+    ViewData["Title"] = "Đăng tin sản phẩm";
+}
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+        color: #333;
+    }
+
+    .post-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .post-header {
+        background: linear-gradient(90deg, #ffc107, #ff9800);
+        color: white;
+        padding: 40px 30px;
+        border-radius: 16px;
+        margin-bottom: 40px;
+        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2);
+    }
+
+    .post-header h2 {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-header p {
+        font-size: 16px;
+        margin-top: 8px;
+        opacity: 0.95;
+    }
+
+    .form-wrapper {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 40px;
+    }
+
+    .alert {
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        font-size: 15px;
+        border-left: 4px solid;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-color: #28a745;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border-color: #dc3545;
+    }
+
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #ffc107;
+        display: inline-block;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: inherit;
+        color: #333;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #ffc107;
+        box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.1);
+        background: #fffbf0;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-full {
+        grid-column: 1 / -1;
+    }
+
+    .image-upload-section {
+        margin-bottom: 40px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .upload-area {
+        border: 3px dashed #ffc107;
+        border-radius: 12px;
+        padding: 60px 30px;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.05), rgba(255, 152, 0, 0.05));
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+        border-color: #ff9800;
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+        transform: translateY(-2px);
+    }
+
+    .upload-area input[type="file"] {
+        display: none;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .upload-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+        font-size: 14px;
+        color: #999;
+    }
+
+    .thumbnails {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        background: #f0f0f0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        overflow: hidden;
+    }
+
+    .thumbnail:hover {
+        transform: scale(1.08);
+        border-color: #ffc107;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 14px 40px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #ffc107, #ff9800);
+        color: white;
+        box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+    }
+
+    .btn-primary:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+        border: 2px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+        background: #e8e8e8;
+        border-color: #999;
+    }
+
+    .footer-section {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 40px;
+        margin-top: 40px;
+    }
+
+    .footer-column h4 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .footer-column a {
+        display: block;
+        margin-bottom: 10px;
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .footer-column a:hover {
+        color: #ffc107;
+        padding-left: 4px;
+    }
+
+    .footer-column p {
+        font-size: 14px;
+        color: #666;
+        margin-top: 16px;
+    }
+
+    @@media (max-width: 768px) {
+        .post-header {
+            padding: 30px 20px;
+        }
+
+        .post-header h2 {
+            font-size: 24px;
+        }
+
+        .form-wrapper {
+            padding: 24px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .upload-area {
+            padding: 40px 20px;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+        .thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumbnail { display: flex; align-items: center; justify-content: center; background: #eee; border: 1px solid #ddd; }
+
+        .btn {
+            width: 100%;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%); color: #333; }
+    .post-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .post-header { background: linear-gradient(90deg, #ffc107, #ff9800); color: white; padding: 40px 30px; border-radius: 16px; margin-bottom: 40px; box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2); }
+    .post-header h2 { font-size: 32px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .post-header p { font-size: 16px; margin-top: 8px; opacity: 0.95; }
+    .form-wrapper { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 40px; }
+    .alert { padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; font-size: 15px; border-left: 4px solid; animation: slideDown 0.3s ease-out; }
+    @@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .alert-success { background: #d4edda; color: #155724; border-color: #28a745; }
+    .alert-error { background: #f8d7da; color: #721c24; border-color: #dc3545; }
+    .form-section-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #ffc107; display: inline-block; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; }
+    .form-group label { font-size: 15px; font-weight: 600; color: #333; }
+    .form-group input, .form-group select, .form-group textarea { padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; font-family: inherit; color: #333; background: white; transition: all 0.3s ease; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #ffc107; box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.1); background: #fffbf0; }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .form-full { grid-column: 1 / -1; }
+    .image-upload-section { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #eee; }
+    .upload-area { border: 3px dashed #ffc107; border-radius: 12px; padding: 60px 30px; text-align: center; background: linear-gradient(135deg, rgba(255, 193, 7, 0.05), rgba(255, 152, 0, 0.05)); cursor: pointer; transition: all 0.3s ease; }
+    .upload-area:hover { border-color: #ff9800; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1)); transform: translateY(-2px); }
+    .upload-area input[type="file"] { display: none; }
+    .upload-icon { font-size: 48px; margin-bottom: 16px; }
+    .upload-text { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .upload-subtext { font-size: 14px; color: #999; }
+    .thumbnails { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; margin-top: 20px; }
+    .thumbnail { width: 80px; height: 80px; background: #f0f0f0; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; overflow: hidden; }
+    .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin-top: 40px; padding-top: 40px; border-top: 1px solid #eee; }
+    .btn { padding: 14px 40px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-primary { background: linear-gradient(90deg, #ffc107, #ff9800); color: white; box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3); }
+    .btn-secondary { background: #f0f0f0; color: #333; border: 2px solid #ddd; }
+    .footer-section { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-top: 40px; }
+    .footer-column h4 { font-size: 15px; font-weight: 700; color: #333; margin-bottom: 16px; text-transform: uppercase; }
+    .footer-column a { display: block; margin-bottom: 10px; color: #666; text-decoration: none; font-size: 14px; }
+    
+    /* MỚI: Style cho select bị disable */
+    select:disabled { background-color: #f9f9f9 !important; cursor: not-allowed; border-color: #eee !important; color: #aaa !important; }
+
+        .footer-section {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+    }
+</style>
+
+<div class="post-container">
+    <div class="post-header">
+        <h2>Đăng tin sản phẩm</h2>
+        <p>Bán sản phẩm của bạn với giá tốt nhất trên SecondHandSharing</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="alert alert-success">✓ @TempData["SuccessMessage"]</div> }
+    @if (TempData["ErrorMessage"] != null) { <div class="alert alert-error">✗ @TempData["ErrorMessage"]</div> }
+
+    <div class="form-wrapper">
+        <form asp-action="PostItem" asp-controller="Item" method="post" enctype="multipart/form-data" id="postForm">
+    @* Các trường ẩn để đảm bảo tính toàn vẹn dữ liệu *@
+    <input type="hidden" asp-for="CreatedAt" value="@DateTime.Now" />
+    <input type="hidden" asp-for="IsSold" value="false" />
+    <input type="hidden" asp-for="IsBoosted" value="false" />
+            
+            <div class="image-upload-section">
+                <h3 class="form-section-title">Hình ảnh sản phẩm</h3>
+                <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Tải ảnh lên hoặc kéo thả vào đây</div>
+                    <div class="upload-subtext">Định dạng: JPG, PNG (tối đa 10MB)</div>
+                    <input type="file" asp-for="ImageFile" id="fileInput" style="display:none" accept="image/*" />
+                </div>
+                <div class="thumbnails" id="thumbnailContainer">
+                    <div class="thumbnail"></div>
+                    <div class="thumbnail"></div>
+                    <div class="thumbnail"></div>
+                    <div class="thumbnail"></div>
+                </div>
+            </div>
+
+            <h3 class="form-section-title">Thông tin sản phẩm</h3>
+
+            <div class="form-grid">
+                <div class="form-group form-full">
+                    <label>Tên sản phẩm *</label>
+                    <input asp-for="Title" class="form-control" placeholder="Ví dụ: iPhone 14 Pro Max..." required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Danh mục *</label>
+                    <select asp-for="Category" id="categorySelect" class="form-control" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        <option value="XeCo">Xe cộ</option>
+                        <option value="DienTu">Đồ điện tử</option>
+                        <option value="GiaDung">Đồ gia dụng</option>
+                        <option value="ThuCung">Thú cưng</option>
+                        <option value="NoiThat">Nội thất</option>
+                        <option value="ThoiTrang">Thời trang</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Loại *</label>
+                    <select asp-for="Loai" id="loaiSelect" class="form-control" disabled required>
+                        <option value="">-- Chọn loại --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Hãng *</label>
+                    <select asp-for="Hang" id="hangSelect" class="form-control" disabled required>
+                        <option value="">-- Chọn hãng --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tình trạng sản phẩm *</label>
+                    <select asp-for="Condition" class="form-control" required>
+                        <option value="Mới">Mới</option>
+                        <option value="Cũ">Cũ</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Giá bán (VNĐ)</label>
+                    <div class="input-group" style="display: flex;">
+                        <input asp-for="Price" type="number" class="form-control" id="priceInput" style="flex:1" />
+                        <span style="padding: 14px; background: #eee; border: 2px solid #e0e0e0; border-left:none; border-radius: 0 10px 10px 0;">đ</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Trạng thái tin *</label>
+                    <select asp-for="Status" class="form-control" required>
+                        <option value="Đang bán">Đang bán</option>
+                        <option value="Đã bán">Đã bán</option>
+                    </select>
+                </div>
+
+                <div class="form-check mb-3 form-full" style="display:flex; align-items:center; gap:10px">
+                    <input asp-for="IsFree" class="form-check-input" id="isFreeCheck" type="checkbox" />
+                    <label class="form-check-label" for="isFreeCheck">Cho tặng miễn phí (không thu tiền)</label>
+                </div>
+
+                <div class="form-group form-full">
+                    <label>Địa chỉ *</label>
+                    <input asp-for="Address" class="form-control" placeholder="Ví dụ: Q1, TP HCM" required />
+                </div>
+
+                <div class="form-group form-full">
+                    <label>Mô tả chi tiết *</label>
+                    <textarea asp-for="Description" class="form-control" placeholder="Mô tả chi tiết..." required></textarea>
+                </div>
+                <div class="form-group form-full">
+    <label>Thông số chi tiết (Dung lượng, Màu sắc, Đời máy...)</label>
+    <input asp-for="ProductDetail" class="form-control" placeholder="Ví dụ: 128GB, Màu xanh, Bản quốc tế..." />
+    <span asp-validation-for="ProductDetail" class="text-danger"></span>
+</div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Đăng tin ngay</button>
+                <a href="@Url.Action("Index", "Item")" class="btn btn-secondary">Hủy bỏ</a>
+            </div>
+        </form>
+        
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const hierarchalData = {
+            "XeCo": {
+                "Xe số": ["Honda", "Yamaha", "Suzuki", "Sym", "Hãng khác"],
+                "Xe tay ga": ["Honda", "Yamaha", "Piaggio", "VinFast", "Suzuki"],
+                "Xe Tải": ["Hyundai", "JAC", "Isuzu", "Thaco", "Hino", "Dongfeng", "Daehan"],
+                "Xe Ô tô": ["Toyota", "Hyundai", "Kia", "Mazda", "Ford", "Mitsubishi", "VinFast", "Honda"],
+                "Xe đạp": ["Asama", "Giant", "Martin 107", "Thống Nhất"],
+                "Xe điện": ["Pega", "Yadea", "VinFast", "Dibao"],
+                "Phương tiện khác": ["Khác"]
+            },
+            "DienTu": {
+                "Điện thoại": ["Apple", "Samsung", "Oppo", "Xiaomi", "Vivo", "Realme"],
+                "Laptop": ["Apple", "Dell", "HP", "Asus", "Lenovo", "Acer", "MSI"],
+                "Máy tính bảng": ["iPad", "Samsung", "Xiaomi"],
+                "Loa/Tai nghe": ["Sony", "JBL", "Marshall", "Apple"]
+            },
+            "GiaDung": {
+                "Tủ lạnh": ["Panasonic", "Toshiba", "Sharp", "Samsung", "LG", "Aqua",],
+                "Máy giặt": ["Electrolux", "LG", "Samsung", "Panasonic", "Toshiba", "Aqua"],
+                "Điều hòa": ["Daikin", "Panasonic", "LG", "Casper", "Toshiba", "Sharp"],
+                "Bàn ghế": ["Hòa Phát", "Xuân Hòa", "Gỗ Đức Thành", "IKEA", "Đồ gỗ mỹ nghệ"],
+                "Giường": ["Gỗ xoan đào", "Gỗ sồi", "Sắt Duy Phương", "Giường tầng"],
+                "Dụng cụ bếp": ["Sunhouse", "Lock&Lock", "HappyCook", "Philips", "Tefal"]
+            },
+            "ThuCung": {
+                "Chó": ["Poodle", "Phú Quốc", "Corgi", "Alaska", "Golden", "Husky", "Becgie", "Chó cỏ"],
+                "Mèo": ["Anh lông ngắn", "Anh lông dài", "Mèo Ba Tư", "Mèo Ta", "Mèo Xiêm", "Mèo Sphinx"],
+                "Chim": ["Chào mào", "Sơn ca", "Vẹt", "Khướu", "Yến phụng"],
+                "Gà": ["Gà tre", "Gà chọi", "Gà Đông Tảo", "Gà Serama"]
+            },
+            "NoiThat": {
+                "Bàn ghế": ["Hòa Phát", "Xuân Hòa", "Gỗ Đức Thành", "Khác"],
+                "Giường ngủ": ["Gỗ xoan đào", "Gỗ sồi", "Sắt", "Khác"]
+            },
+            "ThoiTrang": {
+                "Quần": ["Levi's", "PT2000", "Blue Exchange", "Uniqlo", "Owen"],
+                "Áo": ["Nike", "Adidas", "Uniqlo", "Lacoste", "Owen", "An Phước"],
+                "Váy đầm": ["Zara", "H&M", "Elise", "Ivy Moda", "Gumac"],
+                "Giày dép": ["Nike", "Adidas", "Bitis", "Converse", "Vans", "Puma"],
+                "Túi xách": ["Gucci", "LV", "Charles & Keith", "Vascara", "Pedro"],
+                "Đồng hồ": ["Casio", "Rolex", "Citizen", "Apple", "Tissot"]
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const categorySelect = document.getElementById("categorySelect");
+            const loaiSelect = document.getElementById("loaiSelect");
+            const hangSelect = document.getElementById("hangSelect");
+            const isFreeCheck = document.getElementById("isFreeCheck");
+            const priceInput = document.getElementById("priceInput");
+            const fileInput = document.getElementById("fileInput");
+            const thumbnails = document.querySelectorAll(".thumbnail");
+
+            // 1. Xử lý logic phân cấp
+            categorySelect.addEventListener("change", function() {
+                const category = this.value;
+                loaiSelect.innerHTML = '<option value="">-- Chọn loại --</option>';
+                hangSelect.innerHTML = '<option value="">-- Chọn hãng --</option>';
+                hangSelect.disabled = true;
+
+                if (category && hierarchalData[category]) {
+                    loaiSelect.disabled = false;
+                    Object.keys(hierarchalData[category]).forEach(loai => {
+                        loaiSelect.add(new Option(loai, loai));
+                    });
+                } else {
+                    loaiSelect.disabled = true;
+                }
+            });
+
+            loaiSelect.addEventListener("change", function() {
+                const category = categorySelect.value;
+                const loai = this.value;
+                hangSelect.innerHTML = '<option value="">-- Chọn hãng --</option>';
+
+                if (category && loai && hierarchalData[category][loai]) {
+                    hangSelect.disabled = false;
+                    hierarchalData[category][loai].forEach(hang => {
+                        hangSelect.add(new Option(hang, hang));
+                    });
+                } else {
+                    hangSelect.disabled = true;
+                }
+            });
+
+            // 2. Xử lý giá miễn phí
+            isFreeCheck.addEventListener("change", function() {
+                if (this.checked) {
+                    priceInput.value = 0;
+                    priceInput.readOnly = true;
+                    priceInput.style.backgroundColor = "#eee";
+                } else {
+                    priceInput.readOnly = false;
+                    priceInput.style.backgroundColor = "#fff";
+                }
+            });
+
+            // 3. Xem trước ảnh (Preview)
+            fileInput.addEventListener("change", function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        thumbnails[0].innerHTML = `<img src="${e.target.result}" />`;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Sửa lỗi: Trước khi submit form, phải enable các select để ASP.NET nhận được dữ liệu
+            document.getElementById("postForm").addEventListener("submit", function() {
+                loaiSelect.disabled = false;
+                hangSelect.disabled = false;
+            });
+        });
+    </script>
+}

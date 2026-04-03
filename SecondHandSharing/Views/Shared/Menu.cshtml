@@ -1,0 +1,107 @@
+@* Menu danh mục có khung bo góc + chữ giống Chợ Tốt *@
+<div class="container my-4">
+    <div class="menu-box shadow-sm p-4 bg-white rounded-4">
+        <div class="row text-center">
+
+            <!-- 1. Tặng miễn phí -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="TangMienPhi" class="menu-item">
+                    <img src="~/images/forFree-removebg-preview.png" alt="Tặng miễn phí" class="menu-icon mb-2" />
+                    <p>Tặng miễn phí</p>
+                </a>
+            </div>
+
+            <!-- 2. Xe cộ -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="XeCo" class="menu-item">
+                    <img src="~/images/cate_xeco.png" alt="Xe cộ" class="menu-icon mb-2" />
+                    <p>Xe cộ</p>
+                </a>
+            </div>
+
+            <!-- 3. Thú cưng -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="ThuCung" class="menu-item">
+                    <img src="~/images/cate_thucung.png" alt="Thú cưng" class="menu-icon mb-2" />
+                    <p>Thú cưng</p>
+                </a>
+            </div>
+
+            <!-- 4. Đồ gia dụng / nội thất -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="GiaDung" class="menu-item">
+                    <img src="~/images/cate_dogiadung.png" alt="Đồ gia dụng" class="menu-icon mb-2" />
+                    <p>Đồ gia dụng, nội thất, cây cảnh</p>
+                </a>
+            </div>
+
+            <!-- 5. Thời trang -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="ThoiTrang" class="menu-item">
+                    <img src="~/images/cate_thoitrang.png" alt="Thời trang" class="menu-icon mb-2" />
+                    <p>Thời trang, đồ dùng cá nhân</p>
+                </a>
+            </div>
+
+            <!-- 6. Điện tử -->
+            <div class="col-4 col-md-2 mb-4">
+                <a asp-controller="Item" asp-action="DoDien" class="menu-item">
+                    <img src="~/images/cate_dientu.png" alt="Điện tử" class="menu-icon mb-2" />
+                    <p>Đồ điện tử</p>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* Khung tổng thể */
+    .menu-box {
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* Mỗi mục danh mục */
+    .menu-item {
+        text-decoration: none;
+        color: #222;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .menu-item:hover {
+        transform: translateY(-4px);
+        color: #ffba00; /* Màu vàng kiểu Chợ Tốt */
+    }
+
+    /* Icon */
+    .menu-icon {
+        height: 70px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    /* Tên danh mục */
+    .menu-item p {
+        font-size: 15px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* Hover nhẹ */
+    .menu-item:hover p {
+        color: #ffba00;
+    }
+
+    /* Responsive: nhỏ hơn 768px */
+    @@media (max-width: 767px) {
+        .menu-icon {
+            height: 60px;
+        }
+        .menu-item p {
+            font-size: 13px;
+        }
+    }
+</style>

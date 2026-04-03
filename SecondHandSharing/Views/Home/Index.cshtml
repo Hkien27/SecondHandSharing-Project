@@ -1,0 +1,228 @@
+﻿@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    Layout = "_Layout";
+}
+
+<!-- 🔹 Banner Hero -->
+<div class="container-fluid p-0 mb-5">
+    <div class="position-relative" style="height: 400px; overflow: hidden;">
+        <img src="~/images/img-banner-detail.jpg" alt="Banner" class="w-100 h-100" style="object-fit: cover;" />
+        <!-- Thêm overlay và text giới thiệu -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0, 0, 0, 0.3);">
+            <div class="text-center text-white">
+                <h1 class="fw-bold mb-3" style="font-size: 48px;">Chào mừng đến SecondHandSharing</h1>
+                <p class="fs-5 mb-4" style="max-width: 700x;">Nền tảng mua bán hàng cũ uy tín, an toàn và tiện lợi. Tìm những sản phẩm chất lượng với giá tốt nhất.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 Phần Giới thiệu Web -->
+<div class="container mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h2 class="fw-bold mb-3" style="font-size: 36px; color: #333;">Tại sao chọn SecondHandSharing?</h2>
+            <p class="fs-5 text-muted mb-3">SecondHandSharing là một trong những nền tảng mua bán hàng cũ hàng đầu tại Việt Nam. Chúng tôi giúp bạn tìm những sản phẩm chất lượng cao với giá cả phải chăng.</p>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3">
+                        <i class="bi bi-shield-check" style="font-size: 32px; color: #ff8800;"></i>
+                        <h6 class="fw-bold mt-2">An toàn & Bảo mật</h6>
+                        <p class="small text-muted mb-0">Bảo vệ thông tin cá nhân của bạn</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3">
+                        <i class="bi bi-lightning-fill" style="font-size: 32px; color: #ff8800;"></i>
+                        <h6 class="fw-bold mt-2">Nhanh chóng</h6>
+                        <p class="small text-muted mb-0">Giao dịch nhanh chóng, tiện lợi</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3">
+                        <i class="bi bi-people-fill" style="font-size: 32px; color: #ff8800;"></i>
+                        <h6 class="fw-bold mt-2">Cộng đồng lớn</h6>
+                        <p class="small text-muted mb-0">Hàng triệu người dùng tin tưởng</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded-3">
+                        <i class="bi bi-chat-dots-fill" style="font-size: 32px; color: #ff8800;"></i>
+                        <h6 class="fw-bold mt-2">Hỗ trợ 24/7</h6>
+                        <p class="small text-muted mb-0">Đội ngũ hỗ trợ luôn sẵn sàng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="~/images/img-banner-detail.jpg" alt="Features" class="img-fluid rounded-4" style="height: 400px; object-fit: cover;" />
+            
+        </div>
+    </div>
+</div>
+<!-- ========================================= -->
+<!-- ⭐ SẢN PHẨM NỔI BẬT (Boosted Items) -->
+<!-- ========================================= -->
+@if (ViewBag.FeaturedItems != null && ViewBag.FeaturedItems.Count > 0)
+{
+    <div class="container mb-5">
+        <h2 class="fw-bold mb-4" style="color:#ff8800;">
+            <i class="bi bi-lightning-charge-fill me-2"></i> Sản phẩm nổi bật
+        </h2>
+
+        <div class="row g-4">
+            @foreach (var item in ViewBag.FeaturedItems)
+            {
+                <div class="col-6 col-md-3">
+                    <a asp-controller="Item" asp-action="Details" asp-route-id="@item.ItemId"
+                       class="text-decoration-none text-dark">
+                        <div class="card shadow-sm product-featured-card h-100">
+
+                            <div class="position-relative">
+                                <img src="@item.Image"
+                                     class="card-img-top"
+                                     style="height:180px; object-fit:cover; border-radius:12px 12px 0 0;" />
+
+                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 fw-bold">
+                                    🚀 NỔI BẬT
+                                </span>
+                            </div>
+
+                            <div class="card-body">
+                                <h6 class="fw-bold text-truncate">@item.Title</h6>
+                                <p class="text-danger fw-bold mb-1">
+                                    @(item.IsFree ? "Miễn phí" : item.Price.ToString("N0") + " đ")
+                                </p>
+
+                                @if (item.BoostExpireAt != null)
+                                {
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        Còn @(Math.Max(1,(item.BoostExpireAt.Value - DateTime.Now).Hours)) giờ
+                                    </small>
+                                }
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .product-featured-card {
+            border-radius: 12px;
+            transition: 0.25s ease;
+        }
+
+        .product-featured-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(255, 136, 0, 0.25) !important;
+        }
+    </style>
+}
+<!-- 🔹 Danh mục + Danh sách sản phẩm -->
+<div class="container mb-5">
+    <!-- Cập nhật header danh mục -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="font-size: 28px; color: #333;">
+            <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #ff8800;"></i> Danh mục
+        </h2>
+    </div>
+
+    @await Html.PartialAsync("Menu")
+
+
+
+    <!-- Cải thiện phần danh sách sản phẩm -->
+    <div class="p-5 rounded-4 shadow-sm bg-white">
+        <h3 class="fw-bold mb-4" style="font-size: 24px; color: #333;">
+            <i class="bi bi-stars me-2" style="color: #ff8800;"></i> Sản phẩm mới nhất
+        </h3>
+
+        <div class="row g-4">
+            @if (Model.Count() == 0)
+            {
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 64px; color: #ddd;"></i>
+                    <p class="text-muted mt-3">Chưa có sản phẩm nào</p>
+                </div>
+            }
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card product-card h-100 border-0 shadow-sm rounded-3 overflow-hidden" style="transition: all 0.3s ease;">
+                        <div class="position-relative bg-light" style="height: 220px;">
+                            <img src="@item.Image" alt="@item.Title" class="w-100 h-100" style="object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 p-2">
+                                <span class="badge fw-semibold" style="background-color: #ff8800; color: white;">Mới</span>
+                            </div>
+                        </div>
+
+                        <div class="card-body d-flex flex-column p-3">
+                            <h6 class="card-title fw-bold text-dark text-truncate" title="@item.Title" style="font-size: 15px;">
+                                @item.Title
+                            </h6>
+                            <p class="card-text text-danger fw-bold">
+    @if (item.IsFree)
+    {
+        @:Miễn phí
+    }
+    else
+    {
+        @item.Price.ToString("N0") @:đ
+    }
+</p>
+
+                            <p class="text-muted small mt-auto mb-1">
+                                <i class="bi bi-geo-alt me-1"></i> @item.Address
+                            </p>
+                            <a asp-controller="Item" asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-sm mt-3 fw-bold" style="background: linear-gradient(90deg, #ffcc00, #ff8800); color: #000; border: none; border-radius: 8px;">
+                                <i class="bi bi-eye me-1"></i> Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 Phần Call-to-Action -->
+<div class="container mb-5">
+    <div class="p-5 rounded-4 text-white text-center" style="background: linear-gradient(135deg, #ffcc00 0%, #ff8800 100%);">
+        <h3 class="fw-bold mb-3" style="font-size: 28px;">Có sản phẩm muốn bán?</h3>
+        <p class="mb-4" style="font-size: 18px;">Đăng tin miễn phí trên SecondHandSharing và tiếp cận hàng triệu người mua</p>
+        <a asp-controller="Item" asp-action="PostItem" class="btn btn-light fw-bold px-5 py-2" style="border-radius: 12px; font-size: 16px;">
+            <i class="bi bi-plus-circle me-2"></i> Đăng tin ngay
+        </a>
+    </div>
+</div>
+
+<!-- 🔹 CSS Tùy chỉnh -->
+<style>
+    body {
+        background-color: #f9f9fb;
+    }
+
+    .product-card {
+        border-radius: 12px;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #ffcc00, #ff8800);
+        border: none;
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #ff8800, #ff6600);
+        color: #000;
+    }
+</style>

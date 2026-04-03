@@ -1,0 +1,691 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    ViewData["Title"] = "Mua bán Xe cộ - Hệ thống chia sẻ";
+    var currentLoai = Context.Request.Query["loai"].ToString();
+    var currentHang = Context.Request.Query["hang"].ToString();
+}
+
+<style>
+    /* Container */
+    .xe-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* Banner với gradient vàng-cam */
+    .xe-banner {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-radius: 16px;
+        padding: 40px 30px;
+        text-align: center;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+    }
+
+    .xe-banner h2 {
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Search Box */
+    .search-wrapper {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        max-width: 700px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .search-wrapper input {
+        border: none;
+        flex: 1;
+        padding: 14px 20px;
+        outline: none;
+        font-size: 15px;
+    }
+
+    .btn-search-main {
+        background: linear-gradient(135deg, #333 0%, #555 100%);
+        color: white;
+        border: none;
+        padding: 14px 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-search-main:hover {
+        background: linear-gradient(135deg, #555 0%, #333 100%);
+    }
+
+    .type-tab {
+        background: white;
+        padding: 10px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+
+    .type-tab:hover {
+        border-color: #ffc107;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 193, 7, 0.2);
+    }
+
+    .type-tab.active {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-color: #ffc107;
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    }
+
+    /* Brand Section */
+    .brand-section {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        display: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .brand-section.active {
+        display: block;
+    }
+
+    .brand-section p {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .brand-grid {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 10px 5px;
+        scrollbar-width: thin;
+    }
+
+    .brand-link {
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        min-width: 85px;
+        transition: all 0.3s;
+    }
+
+    .brand-image-wrapper {
+        width: 60px;
+        height: 60px;
+        background: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .brand-link:hover .brand-image-wrapper {
+        border-color: #ffc107;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .brand-link.active .brand-image-wrapper {
+        border-color: #ff9800;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+    }
+
+    .brand-image-wrapper img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+    }
+
+    .brand-link span {
+        font-size: 13px;
+        font-weight: 500;
+        display: block;
+    }
+
+    .brand-link.active span {
+        color: #ff9800;
+        font-weight: 700;
+    }
+
+    /* Main Layout */
+    .main-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    /* Filter Sidebar */
+    .filter-sidebar {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        height: fit-content;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        position: sticky;
+        top: 20px;
+    }
+
+    .filter-sidebar h6 {
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #ffc107;
+    }
+
+    .filter-sidebar label {
+        color: #555;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .filter-sidebar .form-select,
+    .filter-sidebar .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .filter-sidebar .form-select:focus,
+    .filter-sidebar .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+    }
+
+    .filter-sidebar .btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .filter-sidebar .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    }
+
+    /* Product Grid */
+    .product-header {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .product-header h5 {
+        margin: 0;
+        color: #333;
+    }
+
+    .product-header .badge {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    /* Item Card */
+    .item-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        position: relative;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border-color: #ffc107;
+    }
+
+    .item-img {
+        width: 100%;
+        height: 170px;
+        object-fit: cover;
+        transition: all 0.3s;
+    }
+
+    .item-card:hover .item-img {
+        transform: scale(1.05);
+    }
+
+    .badge-boost {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .item-info {
+        padding: 15px;
+    }
+
+    .item-title {
+        font-size: 14px;
+        color: #333;
+        height: 40px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 8px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .item-price {
+        color: #ff5722;
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .item-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #999;
+        padding-top: 10px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .item-meta i {
+        color: #ffc107;
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .main-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-sidebar {
+            position: relative;
+            top: 0;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+    }
+    /* Container cho hàng danh mục */
+    .category-nav-scroll {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 15px 5px;
+        scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+    }
+    .category-nav-scroll::-webkit-scrollbar { display: none; } /* Ẩn trên Chrome/Safari */
+
+    /* Item danh mục dạng hình tròn */
+    .nav-circle-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #222;
+    padding: 15px 5px;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+    
+    
+    
+
+    /* Khi được chọn (Active) */
+    .nav-circle-item.active .circle-img-wrapper {
+        border-color: #ffc107;
+        background-color: #fffdf5;
+        box-shadow: 0 4px 10px rgba(255, 193, 7, 0.2);
+    }
+    .nav-circle-item.active span { font-weight: bold; color: #ff8a00; }
+
+/* Hiệu ứng khi di chuột vào: Xe to thêm một chút nữa */
+.nav-circle-item:hover .circle-img-wrapper img {
+    transform: scale(1.15);
+}
+
+    @@media (max-width: 768px) {
+        .xe-banner {
+            padding: 30px 20px;
+        }
+
+        .xe-banner h2 {
+            font-size: 22px;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .filter-sidebar {
+            display: none;
+        }
+    }
+
+    /* Scrollbar styling */
+    .xe-types-bar::-webkit-scrollbar,
+    .brand-grid::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .xe-types-bar::-webkit-scrollbar-track,
+    .brand-grid::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .xe-types-bar::-webkit-scrollbar-thumb,
+    .brand-grid::-webkit-scrollbar-thumb {
+        background: #ffc107;
+        border-radius: 10px;
+    }
+    /* Style mới cho hàng danh mục Icon tròn */
+    .xe-types-bar::-webkit-scrollbar { display: none; }
+
+    
+
+
+
+    /* Trạng thái Active */
+    .nav-circle-item.active .circle-img-wrapper {
+        border-color: #ffc107;
+        background-color: #fffdf5;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        border-width: 2px;
+    }
+    
+    .nav-circle-item.active span {
+        font-weight: 700;
+        color: #ff8a00;
+    }
+
+
+.xe-types-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+/* Căn đều các mục */
+.xe-types-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+    text-align: center;
+    gap: 10px;
+}
+.circle-img-wrapper {
+    width: 130px;  /* Tăng kích thước khung lên */
+    height: 90px;  /* Chiều cao đủ cho dáng xe dài */
+    background: transparent !important; 
+    border: none !important;           
+    border-radius: 0 !important;       
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease;
+}
+
+.nav-circle-item:last-child { border-right: none; }
+
+
+
+.nav-circle-item:hover {
+    background-color: #fcfcfc;
+}
+
+/* Hình ảnh xe hiển thị lớn và rõ */
+.circle-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Xe sẽ to hết mức trong khung 130x90 */
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.12)); /* Đổ bóng cho xe nổi bật */
+}
+
+.nav-circle-item span {
+    font-size: 15px; /* Chữ to hơn một chút cho cân đối với ảnh */
+    font-weight: 500;
+}
+
+/* Trạng thái đang chọn - đổ nền vàng nhạt giống Chợ Tốt */
+.nav-circle-item.active {
+    background-color: #fff9e6; 
+}
+.nav-circle-item.active span {
+    font-weight: 700;
+    color: #ff8a00;
+}
+</style>
+
+<div class="xe-container">
+    <!-- Banner -->
+    <div class="xe-banner">
+        <h2>Xe giá tốt, chốt mua nhanh!</h2>
+        @* <form action="@Url.Action("XeCo", "Item")" method="get" class="search-wrapper">
+            <input type="text" name="searchTerm" placeholder="Tìm tên xe, hãng xe, dòng xe...">
+            <button type="submit" class="btn-search-main">Tìm kiếm</button>
+        </form> *@
+    </div>
+
+    <!-- Category Tabs -->
+   <div class="xe-types-card">
+    <div class="xe-types-bar">
+        <a href="?loai=" class="nav-circle-item @(string.IsNullOrEmpty(currentLoai) ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/tatcaxe.png" alt="Tất cả">
+            </div>
+            <span>Tất cả xe</span>
+        </a>
+
+        <a href="?loai=Xe số" class="nav-circle-item @(currentLoai == "Xe số" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/seso.png" alt="Xe số">
+            </div>
+            <span>Xe số, tay côn</span>
+        </a>
+
+        <a href="?loai=Xe tay ga" class="nav-circle-item @(currentLoai == "Xe tay ga" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/xega.png" alt="Xe tay ga">
+            </div>
+            <span>Xe tay ga</span>
+        </a>
+
+        <a href="?loai=Xe Ô tô" class="nav-circle-item @(currentLoai == "Xe Ô tô" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/oto.png" alt="Xe Ô tô">
+            </div>
+            <span>Xe Ô tô</span>
+        </a>
+
+        <a href="?loai=Xe Tải" class="nav-circle-item @(currentLoai == "Xe Tải" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/xetai.png" alt="Xe Tải">
+            </div>
+            <span>Xe Tải</span>
+        </a>
+
+        <a href="?loai=Xe đạp" class="nav-circle-item @(currentLoai == "Xe đạp" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/xedap.png" alt="Xe đạp">
+            </div>
+            <span>Xe đạp</span>
+        </a>
+
+        <a href="?loai=Xe điện" class="nav-circle-item @(currentLoai == "Xe điện" ? "active" : "")">
+            <div class="circle-img-wrapper">
+                <img src="/images/xedien.png" alt="Xe điện">
+            </div>
+            <span>Xe điện</span>
+        </a>
+    </div>
+</div>
+
+    <!-- Brand Filter Section -->
+    <div id="brandFilterSection" class="brand-section">
+        <p><strong>🏷️ Hãng xe @currentLoai được ưa chuộng:</strong></p>
+        <div id="brandContainer" class="brand-grid"></div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar">
+            <h6>Bộ lọc nâng cao</h6>
+            <form method="get">
+                <input type="hidden" name="loai" value="@currentLoai" />
+                <input type="hidden" name="hang" value="@currentHang" />
+                
+                <div class="mb-3">
+                    <label class="small fw-bold">Tình trạng</label>
+                    <select name="condition" class="form-select form-select-sm mt-2">
+                        <option value="">Tất cả</option>
+                        <option value="Mới">Mới</option>
+                        <option value="Cũ">Đã sử dụng</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small fw-bold">Khoảng giá</label>
+                    <input type="number" name="minPrice" class="form-control form-control-sm mt-2" placeholder="Giá thấp nhất">
+                    <input type="number" name="maxPrice" class="form-control form-control-sm mt-2" placeholder="Giá cao nhất">
+                </div>
+                
+                <button type="submit" class="btn btn-warning w-100">Áp dụng lọc</button>
+            </form>
+        </aside>
+
+        <!-- Product List -->
+        <main>
+            <div class="product-header">
+                <h5>@(string.IsNullOrEmpty(currentLoai) ? "Tất cả tin đăng" : currentLoai)</h5>
+                <span class="badge">@Model.Count() tin đăng</span>
+            </div>
+
+            <div class="product-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="item-card">
+                        <a href="@Url.Action("Details", "Item", new { id = item.ItemId })">
+                            <img src="@(string.IsNullOrEmpty(item.Image) ? "/images/no-image.jpg" : item.Image)" 
+                                 class="item-img" 
+                                 alt="@item.Title">
+                            @if (item.IsBoosted)
+                            {
+                                <div class="badge-boost">⚡ Ưu tiên</div>
+                            }
+                        </a>
+                        <div class="item-info">
+                            <a href="@Url.Action("Details", "Item", new { id = item.ItemId })" class="text-decoration-none">
+                                <div class="item-title">@item.Title</div>
+                            </a>
+                            <div class="item-price">
+                                @(item.IsFree ? "Cho tặng miễn phí" : string.Format("{0:N0} đ", item.Price))
+                            </div>
+                            <div class="item-meta">
+                                <span><i class="bi bi-geo-alt-fill"></i> @item.Address.Split(',').Last()</span>
+                                <span>@item.CreatedAt.ToString("dd/MM")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const hierarchalData = {
+        "Xe số": ["Honda", "Yamaha", "Suzuki", "Sym", "Piaggio", "VinFast", "Hãng khác"],
+        "Xe tay ga": ["Honda", "Yamaha", "Piaggio", "VinFast", "Suzuki"],
+        "Xe Ô tô": ["Toyota", "Hyundai", "Kia", "Mazda", "Ford", "Mitsubishi", "VinFast", "Honda", "Mercedes Benz", "Chevrolet"],
+        "Xe Tải": ["Hyundai", "JAC", "Isuzu", "Thaco", "Hino", "Dongfeng", "Daehan"],
+        "Xe đạp": ["Asama", "Giant", "Martin 107", "Thống Nhất"],
+        "Xe điện": ["Pega", "Yadea", "VinFast", "Dibao"]
+    };
+
+    function getLogoPath(brandName) {
+        const fileName = brandName.toLowerCase()
+                                  .normalize("NFD")
+                                  .replace(/[\u0300-\u036f]/g, "")
+                                  .replace(/\s+/g, '');
+        return `/images/${fileName}.png`; 
+    }
+
+    const currentLoai = "@Html.Raw(currentLoai)"; 
+    const currentHang = "@Html.Raw(currentHang)";
+    const brandSection = document.getElementById('brandFilterSection');
+    const brandContainer = document.getElementById('brandContainer');
+
+    if (currentLoai && hierarchalData[currentLoai]) {
+        brandSection.classList.add('active');
+        let brands = hierarchalData[currentLoai];
+        
+        let html = brands.map(brand => {
+            const isActive = (brand === currentHang) ? 'active' : '';
+            const logoUrl = getLogoPath(brand);
+
+            return `
+                <a href="?loai=${encodeURIComponent(currentLoai)}&hang=${encodeURIComponent(brand)}" class="brand-link ${isActive}">
+                    <div class="brand-image-wrapper">
+                        <img src="${logoUrl}" 
+                             alt="${brand}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="brand-letter-placeholder" style="display:none; font-weight:bold; color:#999; font-size:20px;">${brand[0]}</div>
+                    </div>
+                    <span>${brand}</span>
+                </a>
+            `;
+        }).join('');
+        
+        brandContainer.innerHTML = html;
+    }
+</script>

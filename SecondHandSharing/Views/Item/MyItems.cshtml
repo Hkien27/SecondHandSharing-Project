@@ -1,0 +1,126 @@
+@model SecondHandSharing.Models.ViewModels.MyItemsViewModel
+@{
+    ViewData["Title"] = "Quản lý tin đăng";
+}
+
+<style>
+    .myitems-header {
+        margin-top: 24px;
+        margin-bottom: 24px;
+    }
+
+    .myitems-header h2 {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .myitems-header p {
+        color: #6b7280;
+        margin-bottom: 0;
+    }
+
+    .nav-pills .nav-link {
+        font-weight: 600;
+        border-radius: 999px;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #f97316;
+    }
+</style>
+
+<div class="container my-4">
+    <!-- Header -->
+    <div class="myitems-header">
+        <h2>Quản lý tin đăng</h2>
+        <p>Theo dõi tất cả tin bạn đã đăng, trạng thái duyệt và chỉnh sửa khi cần</p>
+    </div>
+
+    <!-- Thông báo -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active"
+                    id="approved-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#approved"
+                    type="button"
+                    role="tab">
+                ✅ Tin đã đăng (đã duyệt)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    id="pending-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#pending"
+                    type="button"
+                    role="tab">
+                ⏳ Tin chờ duyệt
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    id="rejected-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#rejected"
+                    type="button"
+                    role="tab">
+                ❌ Tin bị hủy
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- ĐÃ DUYỆT -->
+        <div class="tab-pane fade show active" id="approved" role="tabpanel">
+            @if (Model.ApprovedItems == null || !Model.ApprovedItems.Any())
+            {
+                <div class="alert alert-secondary mt-3">
+                    Chưa có tin nào được duyệt.
+                </div>
+            }
+            else
+            {
+                @Html.Partial("_MyItemsList", Model.ApprovedItems)
+            }
+        </div>
+
+        <!-- CHỜ DUYỆT -->
+        <div class="tab-pane fade" id="pending" role="tabpanel">
+            @if (Model.PendingItems == null || !Model.PendingItems.Any())
+            {
+                <div class="alert alert-secondary mt-3">
+                    Không có tin chờ duyệt.
+                </div>
+            }
+            else
+            {
+                @Html.Partial("_MyItemsList", Model.PendingItems)
+            }
+        </div>
+
+        <!-- BỊ TỪ CHỐI -->
+        <div class="tab-pane fade" id="rejected" role="tabpanel">
+            @if (Model.RejectedItems == null || !Model.RejectedItems.Any())
+            {
+                <div class="alert alert-secondary mt-3">
+                    Không có tin bị hủy.
+                </div>
+            }
+            else
+            {
+                @Html.Partial("_MyItemsList", Model.RejectedItems)
+            }
+        </div>
+    </div>
+</div>

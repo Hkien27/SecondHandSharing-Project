@@ -1,0 +1,248 @@
+@model IEnumerable<SecondHandSharing.Models.ViewHistory>
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Lịch sử xem tin";
+}
+
+<style>
+    .history-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .history-header {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-radius: 16px;
+        padding: 24px 20px;
+        margin: 24px 0;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .history-header h2 {
+        color: #222;
+        font-weight: 700;
+        margin: 0;
+        font-size: 26px;
+    }
+
+    .history-header .btn {
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 8px 16px;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f8f9fa;
+        border-radius: 16px;
+    }
+
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+    }
+
+    /* --- ITEM NẰM NGANG --- */
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 40px;
+    }
+
+    .history-item {
+        background: #fff;
+        border-radius: 14px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.25s ease;
+    }
+
+    .history-item:hover {
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+    }
+
+    .history-thumb {
+        width: 120px;
+        height: 90px;
+        border-radius: 10px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .history-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .history-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .history-title {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 4px;
+        color: #222;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .history-price {
+        color: #ff3b3f;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .history-meta {
+        font-size: 13px;
+        color: #888;
+    }
+
+    .history-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-left: 12px;
+    }
+
+    .history-actions .btn {
+        min-width: 120px;
+        font-size: 13px;
+        border-radius: 999px;
+        padding: 6px 14px;
+    }
+
+    .btn-chat {
+        border: 1px solid #222;
+        background-color: #fff;
+        color: #222;
+    }
+
+    .btn-chat:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-fav {
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @@media (max-width: 768px) {
+        .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .history-actions {
+            flex-direction: row;
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+<div class="history-wrapper">
+    <!-- HEADER -->
+    <div class="history-header">
+        <h2>Lịch sử xem tin</h2>
+
+        @if (Model.Any())
+        {
+            <form asp-action="ClearHistory"
+                  method="post"
+                  class="m-0"
+                  onsubmit="return confirm('Bạn có chắc muốn xóa toàn bộ lịch sử xem tin?');">
+                <button type="submit" class="btn btn-outline-danger">
+                    Xóa tất cả lịch sử
+                </button>
+            </form>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">👀</div>
+            <p class="mb-1">Bạn chưa xem tin nào</p>
+            <p style="color:#999;font-size:14px;">
+                Hãy khám phá những sản phẩm thú vị trên SecondHandSharing.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="history-list">
+            @foreach (var v in Model)
+            {
+                var img = string.IsNullOrEmpty(v.Item.Image)
+                    ? "/images/no-image.png"
+                    : (v.Item.Image.StartsWith("/") ? v.Item.Image : "/images/" + v.Item.Image);
+
+                <div class="history-item">
+                    <!-- ẢNH -->
+                    <div class="history-thumb">
+                        <img src="@img" alt="@v.Item.Title" />
+                    </div>
+
+                    <!-- THÔNG TIN -->
+                    <div class="history-info">
+                        <div class="history-title">@v.Item.Title</div>
+                        <div class="history-price">@v.Item.Price.ToString("N0") đ</div>
+                        <div class="history-meta">
+                            Xem lần cuối: @v.ViewedAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS: Chat + Xem lại + Xóa -->
+                    <div class="history-actions">
+                        @* Chat với người bán *@
+                        @if (User.Identity.IsAuthenticated && v.Item.UserId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value))
+                        {
+                            <a asp-controller="Chat"
+                               asp-action="StartChat"
+                               asp-route-targetUserId="@v.Item.UserId"
+                               asp-route-itemId="@v.ItemId"
+                               class="btn btn-chat">
+                                <i class="bi bi-chat-dots me-1"></i> Chat
+                            </a>
+                        }
+
+                        <a asp-action="Details"
+                           asp-route-id="@v.ItemId"
+                           class="btn btn-outline-primary">
+                            Xem lại
+                        </a>
+
+                        <form asp-action="DeleteHistory"
+                              asp-route-itemId="@v.ItemId"
+                              method="post"
+                              onsubmit="return confirm('Xóa lịch sử mục này?');">
+                            <button type="submit" class="btn btn-outline-danger">
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

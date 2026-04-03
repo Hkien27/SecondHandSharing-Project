@@ -1,0 +1,65 @@
+@model SecondHandSharing.Models.Transaction
+@{
+    ViewData["Title"] = "Thanh toán MoMo";
+}
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning bg-gradient text-dark">
+                    <h5 class="mb-0">Thanh toán MoMo thủ công</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <h6>Số tiền cần thanh toán:</h6>
+                        <h3 class="text-danger fw-bold">
+                            @Model.Amount.ToString("N0") đ
+                        </h3>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 text-center">
+                            <h6>Quét mã QR MoMo</h6>
+                            <img src="~/images/paymomo.png" class="img-fluid rounded" style="max-width: 260px;" />
+
+                            <p class="text-muted mt-2 small">
+                                Mã QR demo (cố định). Trong thực tế có thể generate động theo số tiền.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Thông tin tài khoản nhận</h6>
+                            <ul class="list-unstyled mb-3">
+                                <li><strong>Ngân hàng:</strong> MoMo Bank </li>
+                                <li><strong>Chủ tài khoản:</strong> SECONDHANDSHARING</li>
+                                <li><strong>Số điện thoại / số TK:</strong> 0909 999 999</li>
+                            </ul>
+
+                            <h6>Nội dung chuyển khoản (bắt buộc):</h6>
+                            <div class="p-2 bg-light border rounded mb-2">
+                                <strong>@Model.PaymentCode</strong>
+                            </div>
+                            <p class="text-muted small">
+                                Vui lòng ghi chính xác nội dung này khi chuyển khoản để admin dễ đối chiếu.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Wallet" class="btn btn-outline-secondary">
+                            ← Về trang ví
+                        </a>
+                        <a asp-action="MyTransactions" class="btn btn-primary">
+                            Xem trạng thái giao dịch
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

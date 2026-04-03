@@ -1,0 +1,603 @@
+@using System.Security.Claims
+@model SecondHandSharing.Models.Item
+@using SecondHandSharing.Models
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Chi tiết sản phẩm";
+
+    var phone = Model.User?.PhoneNumber ?? "Chưa cập nhật";
+    string maskedPhone = phone;
+
+    if (!string.IsNullOrWhiteSpace(Model.User?.PhoneNumber))
+    {
+        var p = Model.User.PhoneNumber.Trim();
+        if (p.Length >= 6)
+        {
+            var visible = p.Substring(0, 6);
+            maskedPhone = visible + "****";
+        }
+    }
+    
+    string mainImage = string.IsNullOrEmpty(Model.Image)
+        ? "/images/no-image.png"
+        : (Model.Image.StartsWith("/") ? Model.Image : "/images/" + Model.Image);
+
+    var relatedItems = ViewBag.RelatedItems as List<Item>;
+}
+
+<style>
+    /* Thêm CSS cho thiết kế gradient vàng cam kiểu choTÔT */
+    :root {
+        --primary-yellow: #ffc107;
+        --primary-orange: #ff8800;
+        --primary-dark: #ff6600;
+        --light-bg: #fafafa;
+        --border-light: #e8e8e8;
+    }
+
+    body {
+        background-color: var(--light-bg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .product-header {
+        background: linear-gradient(135deg, var(--primary-yellow) 0%, #ffd633 100%);
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .product-header h1 {
+        color: #222;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .card-modern {
+        background: #fff;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card-modern:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .product-price {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--primary-orange);
+        margin: 16px 0;
+    }
+
+    .btn-primary-action {
+        background: linear-gradient(135deg, var(--primary-yellow) 0%, #ffd633 100%);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-action:hover {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, #ff9900 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255,136,0,0.3);
+        color: #000;
+    }
+
+    .btn-secondary-action {
+        background: #f5f5f5;
+        color: #222;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary-action:hover {
+        background: #fff;
+        border-color: var(--primary-yellow);
+        color: var(--primary-orange);
+    }
+
+    .seller-card {
+        background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .seller-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary-yellow);
+    }
+
+    .seller-info h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .seller-info small {
+        color: #999;
+        display: block;
+        margin-top: 4px;
+    }
+
+    .image-gallery {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #f5f5f5;
+        padding: 16px;
+    }
+
+    .main-image {
+        width: 100%;
+        height: 400px;
+        object-fit: contain;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .thumbnail-container {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .thumb-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .thumb-img:hover {
+        border-color: var(--primary-yellow);
+        transform: scale(1.05);
+    }
+
+    .spec-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .spec-item {
+        padding: 12px;
+        background: #fafafa;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-yellow);
+    }
+
+    .spec-item strong {
+        color: #222;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .spec-item span {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i {
+        color: var(--primary-orange);
+        font-size: 20px;
+    }
+
+    .description-box {
+        color: #666;
+        line-height: 1.6;
+        padding: 16px;
+        background: #fafafa;
+        border-radius: 12px;
+        border-left: 4px solid var(--primary-yellow);
+    }
+
+    .comment-box {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 16px;
+        background: #fafafa;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+    .comment-item {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .comment-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .comment-author {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .comment-content {
+        padding: 10px 12px;
+        border-radius: 8px;
+        display: inline-block;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+
+    .comment-mine {
+        background: linear-gradient(135deg, var(--primary-yellow) 0%, #ffd633 100%);
+        color: #222;
+        float: right;
+    }
+
+    .comment-other {
+        background: #fff;
+        color: #333;
+        border: 1px solid var(--border-light);
+        float: left;
+    }
+
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .related-card {
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .related-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transform: translateY(-4px);
+    }
+
+    .related-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        background: #f5f5f5;
+    }
+
+    .related-body {
+        padding: 12px;
+    }
+
+    .related-title {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .related-price {
+        color: var(--primary-orange);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .related-date {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }
+
+    @@media (max-width: 768px) {
+        .main-image {
+            height: 300px;
+        }
+
+        .product-price {
+            font-size: 24px;
+        }
+
+        .spec-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .related-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons button,
+        .action-buttons a {
+            width: 100%;
+        }
+
+        .comment-content {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<!-- Thêm header gradient vàng như choTÔT -->
+@* <div class="product-header">
+    <div class="container-fluid">
+        <h1 class="m-0">@Model.Title</h1>
+        <small class="text-muted">@Model.Category • @Model.Condition</small>
+    </div>
+</div> *@
+
+<div class="container my-4">
+    <div class="row g-4 align-items-start">
+        <!-- Cột hình ảnh với gallery cải thiện -->
+        <div class="col-lg-6">
+            <div class="image-gallery">
+                <img src="@Url.Content(mainImage)" alt="@Model.Title" class="main-image" id="mainImage" />
+                @* <div class="thumbnail-container">
+                    <img src="@Url.Content(mainImage)" class="thumb-img" onclick="document.getElementById('mainImage').src=this.src" />
+                    <img src="@Url.Content(mainImage)" class="thumb-img" onclick="document.getElementById('mainImage').src=this.src" />
+                    <img src="@Url.Content(mainImage)" class="thumb-img" onclick="document.getElementById('mainImage').src=this.src" />
+                </div> *@
+            </div>
+        </div>
+
+        <!-- Cột thông tin sản phẩm với thiết kế mới -->
+        <div class="col-lg-6">
+        @* <div class="product-header"> *@
+    @* <div class="container-fluid">
+        <h1 class="m-0">@Model.Title</h1>
+        <small class="text-muted">@Model.Category • @Model.Condition</small>
+    </div> *@
+@* </div> *@
+            <div class="card-modern p-4">
+            <div class="container-fluid">
+        <h1 class="m-0">@Model.Title</h1>
+        <small class="text-muted">@Model.Category • @Model.Condition</small>
+    </div>
+                <div class="product-price">@Model.Price.ToString("N0") đ</div>
+                
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-geo-alt-fill text-danger"></i>
+                    <span class="text-muted">@Model.Address</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <i class="bi bi-clock-history text-secondary"></i>
+                    <span class="text-muted">Đăng ngày @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+
+                <!-- Action buttons với gradient màu vàng -->
+                <div class="action-buttons">
+                    @if (User.Identity.IsAuthenticated && Model.UserId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value))
+                    {
+                        <a asp-controller="Chat" asp-action="StartChat" asp-route-targetUserId="@Model.UserId" asp-route-itemId="@Model.ItemId" class="btn btn-primary-action">
+                            <i class="bi bi-chat-dots me-2"></i>Chat với người bán
+                        </a>
+                    }
+                    else if (!User.Identity.IsAuthenticated)
+                    {
+                        <button class="btn btn-primary-action" disabled>
+                            <i class="bi bi-chat-dots me-2"></i>Chat với người bán
+                        </button>
+                    }
+
+                    <button type="button" id="phoneBtn" class="btn btn-secondary-action" data-full="@phone" data-mask="@maskedPhone">
+                        <i class="bi bi-telephone me-2"></i>Hiện số @maskedPhone
+                    </button>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form method="post" asp-action="ToggleFavorite" asp-route-itemId="@Model.ItemId" class="d-inline">
+                            <button type="submit" class="btn btn-secondary-action">
+                                <i class="bi bi-heart me-2"></i>Thêm yêu thích
+                            </button>
+                        </form>
+                    }
+                </div>
+
+                <!-- Seller card cải thiện -->
+                <hr class="my-4" />
+                <h6 class="section-title mb-3"><i class="bi bi-person-circle"></i>Thông tin người bán</h6>
+                
+                @{
+                    var sellerAvatar = "/images/avatar_default.png";
+                    if (Model.User != null && !string.IsNullOrEmpty(Model.User.AvatarPath))
+                    {
+                        sellerAvatar = Model.User.AvatarPath;
+                    }
+                }
+
+                <div class="seller-card">
+                    <img src="@sellerAvatar" alt="Avatar" class="seller-avatar" />
+                    <div class="seller-info">
+                        <h6>@Model.User?.FullName</h6>
+                        <small>@Model.User?.Email</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô tả chi tiết cải thiện -->
+    <div class="card-modern mt-4 p-4">
+        <h5 class="section-title"><i class="bi bi-info-circle"></i>Mô tả chi tiết</h5>
+        <div class="description-box">@Model.Description</div>
+    </div>
+
+    <!-- Thông số kỹ thuật cải thiện -->
+    <div class="card-modern mt-4 p-4">
+        <h5 class="section-title"><i class="bi bi-gear-fill"></i>Thông tin liên quan</h5>
+        <div class="spec-grid">
+            <div class="spec-item">
+                <strong>Danh mục</strong>
+                <span>@Model.Category</span>
+            </div>
+            <div class="spec-item">
+                <strong>Tình trạng</strong>
+                <span>@Model.Condition</span>
+            </div>
+            <div class="spec-item">
+                <strong>Trạng thái</strong>
+                <span>@Model.Status</span>
+            </div>
+            <div class="spec-item">
+                <strong>Ngày đăng</strong>
+                <span>@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bình luận/Chat cải thiện -->
+    <div class="card-modern mt-4 p-4">
+        <h5 class="section-title"><i class="bi bi-chat-dots"></i>Bình luận sản phẩm</h5>
+
+        <div class="comment-box" id="commentChatBox">
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                @foreach (var c in Model.Comments)
+                {
+                    var isMe = User.Identity.IsAuthenticated && c.UserId == int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+                    <div class="comment-item">
+                        <div class="comment-author @(isMe ? "text-end" : "text-start")">
+                            @(isMe ? "Bạn" : c.User.FullName) • @c.CreatedAt.ToString("HH:mm dd/MM/yyyy")
+                        </div>
+                        <div class="@(isMe ? "text-end" : "text-start")">
+                            <span class="comment-content @(isMe ? "comment-mine" : "comment-other")">@c.Content</span>
+                        </div>
+                        @if (isMe)
+                        {
+                            <form asp-action="DeleteComment" asp-route-commentId="@c.CommentId" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-link text-danger mt-2">Xoá</button>
+                            </form>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted text-center py-3">Chưa có bình luận nào</p>
+            }
+        </div>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form method="post" asp-action="PostComment" asp-route-itemId="@Model.ItemId">
+                <div class="input-group">
+                    <input name="content" class="form-control" placeholder="Nhập bình luận..." required />
+                    <button class="btn btn-primary-action" type="submit">
+                        <i class="bi bi-send me-2"></i>Gửi
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <p class="text-muted text-center">Bạn cần <a asp-controller="Account" asp-action="Login">đăng nhập</a> để bình luận.</p>
+        }
+    </div>
+    </div>
+
+    <!-- Sản phẩm liên quan cải thiện -->
+    @if (relatedItems != null && relatedItems.Any())
+    {
+        <div class="card-modern mt-4 p-4">
+            <h5 class="section-title"><i class="bi bi-grid-3x3-gap-fill"></i>Sản phẩm liên quan</h5>
+            <div class="related-grid">
+                @foreach (var r in relatedItems)
+                {
+                    var rImg = string.IsNullOrEmpty(r.Image) ? "/images/no-image.png" : (r.Image.StartsWith("/") ? r.Image : "/images/" + r.Image);
+
+                    <a asp-action="Details" asp-route-id="@r.ItemId" class="related-card">
+                        <img src="@Url.Content(rImg)" class="related-image" alt="@r.Title" />
+                        <div class="related-body">
+                            <div class="related-title">@r.Title</div>
+                            <div class="related-price">@r.Price.ToString("N0") đ</div>
+                            <div class="related-date">@r.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mt-4 mb-5 text-center">
+        <a asp-action="Index" class="btn btn-secondary-action px-5">
+            <i class="bi bi-arrow-left-circle me-2"></i>Quay lại danh sách
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("phoneBtn");
+        if (!btn) return;
+
+        let showFull = false;
+        const full = btn.getAttribute("data-full") || "Chưa cập nhật";
+        const mask = btn.getAttribute("data-mask") || full;
+
+        btn.addEventListener("click", function () {
+            if (!showFull) {
+                btn.innerHTML = '<i class="bi bi-telephone me-2"></i>Ẩn số ' + full;
+                showFull = true;
+            } else {
+                btn.innerHTML = '<i class="bi bi-telephone me-2"></i>Hiện số ' + mask;
+                showFull = false;
+            }
+        });
+
+        // Auto scroll to bottom cho comment box
+        const commentBox = document.getElementById("commentChatBox");
+        if (commentBox) {
+            commentBox.scrollTop = commentBox.scrollHeight;
+        }
+    });
+</script>

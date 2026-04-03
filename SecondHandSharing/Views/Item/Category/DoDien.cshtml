@@ -1,0 +1,225 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    ViewData["Title"] = "Mua bán Đồ Điện Tử - Công Nghệ";
+    var currentLoai = Context.Request.Query["loai"].ToString();
+    var currentHang = Context.Request.Query["hang"].ToString();
+}
+
+<style>
+    :root { 
+        --tech-primary: #007bff; /* Xanh công nghệ */
+        --tech-dark: #1a1a1a;
+        --main-yellow: #ffc107; 
+        --bg-light: #f8f9fa;
+    }
+
+    .container-tech { max-width: 1200px; margin: 20px auto; padding: 0 15px; font-family: 'Segoe UI', sans-serif; }
+
+    /* 1. BANNER DARK STYLE */
+    .tech-banner {
+        background: linear-gradient(135deg, #1a1a1a 0%, #343a40 100%);
+        border-radius: 20px; padding: 50px 30px; text-align: center; margin-bottom: 30px; color: white;
+        box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+        border-bottom: 4px solid var(--tech-primary);
+    }
+    .search-wrapper {
+        display: flex; background: white; border-radius: 15px;
+        max-width: 700px; margin: 25px auto 0; overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .search-wrapper input { border: none; flex: 1; padding: 16px 25px; outline: none; color: #333; font-size: 16px; }
+    .btn-search-main { background: var(--tech-primary); color: white; border: none; padding: 0 35px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .btn-search-main:hover { background: #0056b3; }
+
+    /* 2. DANH MỤC LOẠI (TRÒN) */
+    .tech-types-card { background: white; border-radius: 16px; padding: 30px 15px; margin-bottom: 30px; border: 1px solid #eee; }
+    .tech-types-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); text-align: center; gap: 15px; }
+
+    .nav-tech-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #444; transition: 0.3s; padding: 15px; border-radius: 15px; }
+    .circle-img-wrapper { 
+        width: 80px; height: 80px; margin-bottom: 12px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; background: #f0f4f8;
+    }
+    .circle-img-wrapper img { width: 60%; height: 60%; object-fit: contain; transition: 0.4s; }
+    .nav-tech-item:hover img { transform: scale(1.2); }
+    .nav-tech-item.active { background: #e7f3ff; border: 1px solid var(--tech-primary); }
+    .nav-tech-item.active span { font-weight: 700; color: var(--tech-primary); }
+
+    /* 3. BRAND SECTION (GIỐNG THỜI TRANG) */
+    .brand-section { background: white; padding: 25px; border-radius: 16px; margin-bottom: 30px; display: none; border: 1px solid #eee; }
+    .brand-section.active { display: block; animation: fadeIn 0.5s ease; }
+    .brand-grid { display: flex; gap: 25px; overflow-x: auto; padding: 10px 5px; }
+    .brand-link { text-align: center; text-decoration: none; color: #333; min-width: 90px; transition: 0.3s; }
+    
+    .brand-image-wrapper { 
+        width: 75px; height: 75px; background: white; border: 2px solid #f0f0f0; 
+        border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; 
+        justify-content: center; overflow: hidden; transition: all 0.3s ease;
+    }
+    .brand-image-wrapper img { width: 75%; height: 75%; object-fit: contain; }
+    
+    .brand-link:hover .brand-image-wrapper { border-color: var(--tech-primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,123,255,0.2); }
+    .brand-link.active .brand-image-wrapper { border-color: var(--tech-primary); background: #fff; box-shadow: 0 0 12px rgba(0,123,255,0.3); }
+    .brand-link.active span { color: var(--tech-primary); font-weight: 700; }
+
+    /* 4. LAYOUT & PRODUCT CARD */
+    .main-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
+    .filter-sidebar { background: white; padding: 25px; border-radius: 16px; border: 1px solid #eee; height: fit-content; position: sticky; top: 20px; }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .tech-card { background: white; border-radius: 15px; border: 1px solid #eee; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
+    .tech-card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); border-color: var(--tech-primary); }
+    
+    .img-box { position: relative; width: 100%; height: 200px; padding: 20px; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; transition: 0.5s; }
+    .tech-card:hover .img-box img { transform: scale(1.08); }
+    
+    .price { color: var(--tech-primary); font-weight: 700; font-size: 18px; margin: 8px 0; }
+    .badge-condition { position: absolute; top: 10px; left: 10px; background: var(--tech-dark); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; z-index: 2; }
+
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="container-tech">
+    <div class="tech-banner">
+        <h1 class="fw-bold" style="font-size: 40px; letter-spacing: 1px;">TECH WORLD</h1>
+        <p style="font-size: 18px; opacity: 0.9;">Nâng cấp trải nghiệm công nghệ - Tiết kiệm chi phí</p>
+        @* <form action="@Url.Action("DoDien", "Item")" method="get" class="search-wrapper">
+            <input type="text" name="searchTerm" placeholder="Bạn đang tìm iPhone, Laptop hay Loa?">
+            <button type="submit" class="btn-search-main">TÌM KIẾM</button>
+        </form> *@
+    </div>
+
+    @* Danh mục loại *@
+    <div class="tech-types-card shadow-sm">
+        <div class="tech-types-bar">
+            <a href="?loai=" class="nav-tech-item @(string.IsNullOrEmpty(currentLoai) ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/nhieudienthoai.png" alt="Tất cả"></div>
+                <span>Tất cả</span>
+            </a>
+            @{
+                var categories = new[] {
+                    new { Name = "Điện thoại", Img = "phone.png" },
+                    new { Name = "Laptop", Img = "laptop.png" },
+                    new { Name = "Máy tính bảng", Img = "tablet.png" },
+                    new { Name = "Loa - Tai nghe", Img = "audio.png" },
+                    new { Name = "Máy ảnh", Img = "camera.png" }
+                };
+                foreach (var c in categories) {
+                    <a href="?loai=@c.Name" class="nav-tech-item @(currentLoai == c.Name ? "active" : "")">
+                        <div class="circle-img-wrapper"><img src="/images/@c.Img" alt="@c.Name"></div>
+                        <span>@c.Name</span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    @* Thương hiệu *@
+    <div id="brandFilterSection" class="brand-section shadow-sm">
+        <p class="fw-bold mb-3"><i class="bi bi-cpu text-primary"></i> Thương hiệu @currentLoai hàng đầu</p>
+        <div id="brandContainer" class="brand-grid"></div>
+    </div>
+
+    <div class="main-layout">
+        <aside class="filter-sidebar shadow-sm">
+            <h6 class="fw-bold mb-4 border-bottom pb-2">BỘ LỌC THÔNG MINH</h6>
+            <form method="get">
+                <input type="hidden" name="loai" value="@currentLoai" />
+                <input type="hidden" name="hang" value="@currentHang" />
+                
+                <div class="mb-4">
+                    <label class="small fw-bold mb-2">Giá sản phẩm (VNĐ)</label>
+                    <input type="number" name="minPrice" class="form-control mb-2 form-control-sm" placeholder="Từ">
+                    <input type="number" name="maxPrice" class="form-control mb-3 form-control-sm" placeholder="Đến">
+                </div>
+
+                <div class="mb-4">
+                    <label class="small fw-bold mb-2">Độ mới thiết bị</label>
+                    <select name="condition" class="form-select form-select-sm">
+                        <option value="">Tất cả</option>
+                        <option value="Mới">Mới (Fullbox)</option>
+                        <option value="99%">Likenew 99%</option>
+                        <option value="Cũ">Đã qua sử dụng</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold mb-2 shadow-sm">ÁP DỤNG</button>
+                <a href="@Url.Action("DoDien", "Item")" class="btn btn-outline-secondary w-100 btn-sm mt-2">Xóa bộ lọc</a>
+            </form>
+        </aside>
+
+        <main>
+            <div class="product-grid">
+                @if (!Model.Any()) {
+                    <div class="text-center py-5 w-100" style="grid-column: 1/-1;">
+                        <i class="bi bi-search" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="text-muted mt-3">Không tìm thấy thiết bị nào phù hợp.</p>
+                    </div>
+                }
+                @foreach (var item in Model) {
+                    <div class="tech-card">
+                        <a href="@Url.Action("Details", "Item", new { id = item.ItemId })" class="text-decoration-none">
+                            <div class="img-box">
+                                <span class="badge-condition">@item.Condition</span>
+                                <img src="@(string.IsNullOrEmpty(item.Image) ? "/images/no-tech.jpg" : item.Image)" alt="@item.Title">
+                            </div>
+                        </a>
+                        <div class="p-3 flex-grow-1 d-flex flex-column">
+                            <h3 class="text-truncate fw-bold mb-1" style="font-size:15px; color:#333;">@item.Title</h3>
+                            <div class="price">@(item.IsFree ? "Miễn phí" : string.Format("{0:N0} đ", item.Price))</div>
+                            
+                            <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center" style="font-size:12px; color:#777;">
+                                <span><i class="bi bi-geo-alt"></i> @(item.Address?.Split(',').Last() ?? "Toàn quốc")</span>
+                                <span>@item.CreatedAt.ToString("dd/MM")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const techData = {
+        "Điện thoại": ["Apple", "Samsung", "Oppo", "Xiaomi", "Vivo", "Realme"],
+        "Laptop": ["Macbook", "Dell", "HP", "Asus", "Acer", "Lenovo", "MSI"],
+        "Máy tính bảng": ["iPad", "Samsung Tab", "Xiaomi Pad", "Lenovo Tab"],
+        "Loa - Tai nghe": ["Sony", "JBL", "Marshall", "Apple", "Bose", "Sennheiser"],
+        "Máy ảnh": ["Canon", "Sony", "Nikon", "Fujifilm", "Lumix"]
+    };
+
+    function getTechLogo(brandName) {
+        if (!brandName) return "/images/brands/default.png";
+        // Chuẩn hóa tên file: viết thường, xóa khoảng trắng
+        const fileName = brandName.toLowerCase()
+                                  .replace(/ /g, "")
+                                  .replace(/&/g, "");
+        return `/images/${fileName}.png`;
+    }
+
+    const currentLoai = "@Html.Raw(currentLoai)";
+    const currentHang = "@Html.Raw(currentHang)";
+    const brandSection = document.getElementById('brandFilterSection');
+    const brandContainer = document.getElementById('brandContainer');
+
+    if (currentLoai && techData[currentLoai]) {
+        brandSection.classList.add('active');
+        brandContainer.innerHTML = techData[currentLoai].map(brand => {
+            const isActive = (brand === currentHang) ? 'active' : '';
+            const logoPath = getTechLogo(brand);
+            
+            return `
+                <a href="?loai=${encodeURIComponent(currentLoai)}&hang=${encodeURIComponent(brand)}" 
+                   class="brand-link ${isActive}">
+                    <div class="brand-image-wrapper">
+                        <img src="${logoPath}" alt="${brand}" 
+                             onerror="this.src='/images/default-tech.png';">
+                    </div>
+                    <span style="font-size:12px; font-weight:500;">${brand}</span>
+                </a>
+            `;
+        }).join('');
+    }
+</script>

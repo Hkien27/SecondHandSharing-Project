@@ -1,0 +1,187 @@
+@model IEnumerable<UserManagementViewModel>
+
+<style>
+    .user-table-card {
+        border-radius: 15px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 1px;
+        padding: 15px;
+        color: #6c757d;
+    }
+
+    .user-avatar-text {
+        width: 35px;
+        height: 35px;
+        background: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #495057;
+        margin-right: 10px;
+    }
+
+    .status-active {
+        background-color: #e6fffa;
+        color: #28a745;
+        border: 1px solid #c6f6d5;
+    }
+
+    .status-locked {
+        background-color: #fff5f5;
+        color: #e53e3e;
+        border: 1px solid #fed7d7;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+    }
+
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 12px 20px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">👥 Quản lý người dùng</h2>
+            <p class="text-muted small">Kiểm soát tài khoản, doanh thu và trạng thái hoạt động của thành viên.</p>
+        </div>
+        <div class="search-box">
+            <input type="text" id="userSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Tìm tên hoặc email...">
+        </div>
+    </div>
+
+    <div class="card user-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="userTable">
+                <thead>
+                    <tr>
+                        <th>Người dùng</th>
+                        <th>Doanh thu</th>
+                        <th>Sản phẩm</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar-text">@user.UserName.Substring(0, 1).ToUpper()</div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@user.UserName</div>
+                                        <div class="text-muted small" style="font-size: 12px;">@user.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-success">@user.TotalRevenue.ToString("N0") đ</div>
+                                <div class="text-muted" style="font-size: 10px;">Tổng tiền đã bán</div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-light border rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modal-@user.UserId">
+                                    <i class="fas fa-box-open me-1 text-info"></i> @user.SoldItems.Count
+                                </button>
+                            </td>
+                            <td>
+                                @if (user.IsLocked)
+                                {
+                                    <span class="badge status-locked rounded-pill px-3 py-2">
+                                        <i class="fas fa-lock me-1"></i> Đã khóa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-active rounded-pill px-3 py-2">
+                                        <i class="fas fa-check-circle me-1"></i> Hoạt động
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <form asp-action="ToggleLock" asp-route-id="@user.UserId" method="post" class="d-inline">
+                                    @if (user.IsLocked)
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="return confirm('Mở khóa người dùng này?')">
+                                            <i class="fas fa-unlock-alt"></i> Mở khóa
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn khóa tài khoản này?')">
+                                            <i class="fas fa-user-slash"></i> Khóa
+                                        </button>
+                                    }
+                                </form>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="modal-@user.UserId" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content shadow-lg">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="fw-bold">📦 Sản phẩm của @user.UserName</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @if (!user.SoldItems.Any())
+                                        {
+                                            <div class="text-center py-4">
+                                                <p class="text-muted">Người dùng này chưa bán sản phẩm nào.</p>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="list-group list-group-flush">
+                                                @foreach (var item in user.SoldItems)
+                                                {
+                                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <span class="text-dark">@item.Title</span>
+                                                        <span class="badge bg-soft-primary text-primary fw-bold">@item.Price.ToString("N0") đ</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Tính năng tìm kiếm nhanh người dùng
+        document.getElementById('userSearch').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#userTable tbody tr');
+            
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+}

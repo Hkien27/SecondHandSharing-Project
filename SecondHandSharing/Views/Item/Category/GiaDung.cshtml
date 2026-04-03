@@ -1,0 +1,210 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    ViewData["Title"] = "Mua bán Đồ Gia Dụng - Nội Thất";
+    var currentLoai = Context.Request.Query["loai"].ToString();
+    var currentHang = Context.Request.Query["hang"].ToString();
+}
+
+<style>
+    :root { --main-yellow: #ffc107; --hover-yellow: #ff8a00; }
+    .container-gd { max-width: 1200px; margin: 20px auto; padding: 0 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    /* Banner */
+    .gd-banner {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-radius: 16px; padding: 40px 30px; text-align: center; margin-bottom: 25px; color: white;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+    }
+
+    .search-wrapper {
+        display: flex; background: white; border-radius: 12px;
+        max-width: 700px; margin: 20px auto 0; overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .search-wrapper input { border: none; flex: 1; padding: 14px 20px; outline: none; color: #333; }
+    .btn-search-main { background: #333; color: white; border: none; padding: 14px 30px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .btn-search-main:hover { background: #000; }
+
+    /* Category Bar */
+    .gd-types-card { background: white; border-radius: 12px; padding: 20px 10px; margin-bottom: 25px; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .gd-types-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); text-align: center; gap: 10px; }
+
+    .nav-gd-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #222; transition: 0.3s; padding: 15px 5px; border-radius: 8px; }
+    .nav-gd-item:hover { background-color: #fcfcfc; }
+    
+    .circle-img-wrapper { width: 100px; height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+    .circle-img-wrapper img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); transition: 0.3s; }
+    .nav-gd-item:hover img { transform: scale(1.1); }
+    
+    .nav-gd-item.active { background-color: #fff9e6; }
+    .nav-gd-item.active span { font-weight: 700; color: var(--hover-yellow); }
+
+    /* Brand Section (Giống Chợ Tốt) */
+    .brand-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; display: none; border: 1px solid #eee; }
+    .brand-section.active { display: block; }
+    .brand-grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scrollbar-width: none; }
+    .brand-grid::-webkit-scrollbar { display: none; }
+    
+    .brand-link { text-align: center; text-decoration: none; color: #333; min-width: 85px; transition: 0.3s; }
+    .brand-image-wrapper { 
+        width: 60px; height: 60px; background: #f8f9fa; border: 2px solid #e0e0e0; 
+        border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .brand-link:hover .brand-image-wrapper { border-color: var(--main-yellow); transform: translateY(-3px); }
+    .brand-link.active .brand-image-wrapper { border-color: var(--hover-yellow); background: #fff; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2); }
+    .brand-link.active span { color: var(--hover-yellow); font-weight: 700; }
+
+    /* Layout chính */
+    .main-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; }
+    .filter-sidebar { background: white; padding: 25px; border-radius: 16px; border: 1px solid #eee; height: fit-content; position: sticky; top: 20px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+
+    .item-card { background: white; border-radius: 12px; border: 1px solid #e0e0e0; overflow: hidden; transition: 0.3s; cursor: pointer; }
+    .item-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); border-color: var(--main-yellow); }
+    .item-img { width: 100%; height: 170px; object-fit: cover; }
+    .item-info { padding: 15px; }
+    .item-title { font-size: 14px; font-weight: 500; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 8px; }
+    .price { color: #ff5722; font-weight: 700; font-size: 16px; }
+    
+    @@media (max-width: 992px) {
+        .main-layout { grid-template-columns: 1fr; }
+        .filter-sidebar { display: none; }
+    }
+</style>
+
+<div class="container-gd">
+    <div class="gd-banner">
+        <h2 class="fw-bold">Gia dụng & Nội thất giá rẻ</h2>
+        @* <form action="@Url.Action("GiaDung", "Item")" method="get" class="search-wrapper">
+            <input type="text" name="searchTerm" placeholder="Tìm tủ lạnh, máy giặt, bàn ghế...">
+            <button type="submit" class="btn-search-main">Tìm kiếm</button>
+        </form> *@
+    </div>
+
+    <div class="gd-types-card">
+        <div class="gd-types-bar">
+            <a href="?loai=" class="nav-gd-item @(string.IsNullOrEmpty(currentLoai) ? "active" : "")">
+                <div class="circle-img-wrapper">
+                    <img src="/images/giadung.png" alt="Tất cả">
+                </div>
+                <span>Tất cả</span>
+            </a>
+            @{
+                var categories = new[] {
+                    new { Name = "Tủ lạnh", Img = "tulanh.png" },
+                    new { Name = "Máy giặt", Img = "maygiat.png" },
+                    new { Name = "Điều hòa", Img = "dieuhoa.png" },
+                    new { Name = "Bàn ghế", Img = "banghe.png" },
+                    new { Name = "Giường", Img = "giuong.png" },
+                    new { Name = "Dụng cụ bếp", Img = "bep.png" }
+                };
+                foreach (var c in categories) {
+                    <a href="?loai=@c.Name" class="nav-gd-item @(currentLoai == c.Name ? "active" : "")">
+                        <div class="circle-img-wrapper">
+                            <img src="/images/@c.Img" alt="@c.Name">
+                        </div>
+                        <span>@c.Name</span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    <div id="brandFilterSection" class="brand-section">
+        <p class="fw-bold small mb-2">🏷️ Hãng @currentLoai phổ biến:</p>
+        <div id="brandContainer" class="brand-grid"></div>
+    </div>
+
+    <div class="main-layout">
+        <aside class="filter-sidebar">
+            <h6 class="fw-bold mb-3 pb-2 border-bottom">Bộ lọc nâng cao</h6>
+            <form method="get">
+                <input type="hidden" name="loai" value="@currentLoai" />
+                <input type="hidden" name="hang" value="@currentHang" />
+                
+                <div class="mb-3">
+                    <label class="small fw-bold mb-1">Khoảng giá</label>
+                    <input type="number" name="minPrice" class="form-control form-control-sm mb-2" placeholder="Giá thấp nhất">
+                    <input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Giá cao nhất">
+                </div>
+                
+                <button type="submit" class="btn btn-warning w-100 fw-bold">Áp dụng lọc</button>
+            </form>
+        </aside>
+
+        <main>
+            <div class="product-grid">
+                @foreach (var item in Model) {
+                    <div class="item-card">
+                        <a href="@Url.Action("Details", "Item", new { id = item.ItemId })">
+                            <img src="@(string.IsNullOrEmpty(item.Image) ? "/images/no-image.jpg" : item.Image)" class="item-img">
+                        </a>
+                        <div class="item-info">
+                            <div class="item-title">@item.Title</div>
+                            <div class="price">@(item.IsFree ? "Cho tặng miễn phí" : string.Format("{0:N0} đ", item.Price))</div>
+                            <div class="d-flex justify-content-between mt-2 pt-2 border-top" style="font-size:12px; color:#999;">
+                                <span><i class="bi bi-geo-alt"></i> @item.Address.Split(',').Last()</span>
+                                <span>@item.CreatedAt.ToString("dd/MM")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (!Model.Any()) {
+                <div class="text-center py-5">
+                    <img src="/images/empty.png" style="width: 100px; opacity: 0.5;">
+                    <p class="text-muted mt-3">Chưa có tin đăng nào phù hợp.</p>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+<script>
+    // Cấu trúc dữ liệu thương hiệu giống Xe cộ
+    const hierarchalData = {
+        "Tủ lạnh": ["Panasonic", "Toshiba", "Sharp", "Samsung", "LG", "Aqua",],
+        "Máy giặt": ["Electrolux", "LG", "Samsung", "Panasonic", "Toshiba", "Aqua"],
+        "Điều hòa": ["Daikin", "Panasonic", "LG", "Casper", "Toshiba", "Sharp"],
+        "Bàn ghế": ["Hòa Phát", "Xuân Hòa", "Gỗ Đức Thành", "IKEA", "Đồ gỗ mỹ nghệ"],
+        "Giường": ["Gỗ xoan đào", "Gỗ sồi", "Sắt Duy Phương", "Giường tầng"],
+        "Dụng cụ bếp": ["Sunhouse", "Lock&Lock", "HappyCook", "Philips", "Tefal"]        
+    };
+
+    // Hàm lấy logo (nếu không có logo thì hiện chữ cái đầu)
+    function getLogoPath(brandName) {
+        const fileName = brandName.toLowerCase()
+                                  .normalize("NFD")
+                                  .replace(/[\u0300-\u036f]/g, "") // Khử dấu tiếng Việt
+                                  .replace(/\s+/g, ''); // Xóa khoảng trắng
+        return `/images/${fileName}.png`; 
+    }
+
+    const currentLoai = "@Html.Raw(currentLoai)";
+    const currentHang = "@Html.Raw(currentHang)";
+    const brandSection = document.getElementById('brandFilterSection');
+    const brandContainer = document.getElementById('brandContainer');
+
+    if (currentLoai && hierarchalData[currentLoai]) {
+        brandSection.classList.add('active');
+        let brands = hierarchalData[currentLoai];
+        
+        brandContainer.innerHTML = brands.map(brand => {
+            const isActive = (brand === currentHang) ? 'active' : '';
+            const logoUrl = getLogoPath(brand);
+
+            return `
+                <a href="?loai=${encodeURIComponent(currentLoai)}&hang=${encodeURIComponent(brand)}" class="brand-link ${isActive}">
+                    <div class="brand-image-wrapper">
+                        <img src="${logoUrl}" 
+                             alt="${brand}" 
+                             style="width:70%; height:70%; object-fit:contain;"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span class="brand-letter" style="display:none; font-weight:bold; color:var(--main-yellow); font-size:20px;">${brand[0]}</span>
+                    </div>
+                    <span>${brand}</span>
+                </a>
+            `;
+        }).join('');
+    }
+</script>

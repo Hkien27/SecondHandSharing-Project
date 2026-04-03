@@ -1,0 +1,141 @@
+@model IEnumerable<SecondHandSharing.Models.Transaction>
+
+@{
+    ViewData["Title"] = "Duyệt giao dịch nạp";
+}
+
+<style>
+    .billing-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: none;
+    }
+
+    .table-billing thead th {
+        background: #f8f9fa;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 1px;
+        padding: 15px;
+        color: #636e72;
+        border-bottom: 2px solid #edf2f7;
+    }
+
+    .amount-positive {
+        color: #2ecc71;
+        font-weight: 800;
+        background: #e6fffa;
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+    .ref-code {
+        font-family: 'Courier New', Courier, monospace;
+        background: #f1f2f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #2d3436;
+        font-weight: bold;
+    }
+
+    .user-info {
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+
+    .action-btns .btn {
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-wallet2 me-2 text-warning"></i>Phê duyệt nạp tiền</h2>
+            <p class="text-muted">Đối soát nội dung chuyển khoản và cộng số dư cho người dùng</p>
+        </div>
+        <div class="text-end">
+            <div class="badge bg-soft-warning text-warning p-2">
+                <i class="bi bi-clock-history me-1"></i> @Model.Count() giao dịch đang đợi
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="billing-card p-5 text-center">
+            <div class="display-1 text-muted opacity-25 mb-3">📂</div>
+            <h4 class="text-muted">Tuyệt vời! Không có giao dịch tồn đọng.</h4>
+            <a href="/" class="btn btn-outline-primary btn-sm mt-3">Quay lại Dashboard</a>
+        </div>
+    }
+    else
+    {
+        <div class="billing-card overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-billing align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã GD</th>
+                            <th>Người nạp</th>
+                            <th>Số tiền</th>
+                            <th>Nội dung đối soát</th>
+                            <th>Thời gian</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@t.TransactionId</td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="fw-bold text-dark">@t.User?.FullName</div>
+                                        <div class="text-muted small">@t.User?.Email</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="amount-positive">+@t.Amount.ToString("N0") đ</span>
+                                </td>
+                                <td>
+                                    <span class="ref-code">@t.Note</span>
+                                    @if (string.IsNullOrEmpty(t.Note)) {
+                                        <span class="text-muted small italic">Không có ghi chú</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small">@t.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                    <div class="text-muted small">@t.CreatedAt.ToString("HH:mm")</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2 action-btns">
+                                        <form asp-controller="AdminRevenue" asp-action="ApproveTopup" method="post" onsubmit="return confirm('Xác nhận cộng tiền cho người dùng?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@t.TransactionId" />
+                                            <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                                                <i class="bi bi-check-lg"></i> Duyệt
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="AdminRevenue" asp-action="RejectTopup" method="post" onsubmit="return confirm('Từ chối giao dịch này?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@t.TransactionId" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-x-lg"></i> Hủy
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Background Image -->
+        <div class="login-background"></div>
+
+        <!-- Login Modal -->
+        <div class="login-modal">
+            <div class="login-content">
+                <!-- Logo -->
+                <div class="login-logo">SIDA</div>
+
+                <!-- Title -->
+                <h1 class="login-title">ĐĂNG NHẬP</h1>
+
+                <!-- Description -->
+                <p class="login-description">
+                    Vui lòng điền đăng nhập để sử dụng dịch vụ.
+                </p>
+
+                <!-- Login Form -->
+                <form asp-action="Login" method="post" class="login-form">
+                    <!-- Email/Phone Input -->
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="Email hoặc số điện thoại *"
+                            required />
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <input 
+                            type="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Mật khẩu *"
+                            required />
+                    </div>
+
+                    <!-- Links -->
+                    <div class="form-links">
+                        <a href="/Account/Register" class="form-link">Tạo mật khẩu</a>
+                        <a href="/Account/Register" class="form-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="login-button">ĐĂNG NHẬP</button>
+                </form>
+
+                <!-- Error Message -->
+                @if (ViewBag.Error != null)
+                {
+                    <p class="error-message">@ViewBag.Error</p>
+                }
+            </div>
+        </div>
+
+        @* <!-- Footer Stats -->
+        <div class="login-footer">
+            <div class="stat-item">
+                <p class="stat-label">MILEAGE ACCUMULATED</p>
+                <p class="stat-value">45.508.797 km</p>
+            </div>
+            <div class="stat-item">
+                <p class="stat-label">CO2 REDUCTION</p>
+                <p class="stat-value">206.762.230 kg</p>
+            </div>
+            <div class="stat-item">
+                <p class="stat-label">AIR CLEANED</p>
+                <p class="stat-value">~2.275.441 trees</p>
+            </div>
+        </div> *@
+    </div>
+</body>
+</html>

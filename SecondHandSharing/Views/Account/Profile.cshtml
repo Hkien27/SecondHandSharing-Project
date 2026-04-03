@@ -1,0 +1,98 @@
+@model SecondHandSharing.Models.ViewModels.UserAccountViewModel
+@{
+    ViewData["Title"] = "Tài khoản của tôi";
+}
+
+<div class="container my-5" style="max-width: 900px;">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-person-circle me-2"></i>Quản lý tài khoản
+    </h2>
+
+    <div class="row g-4">
+
+        <!-- ==========================
+             THÔNG TIN TÀI KHOẢN
+        =========================== -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-lines-fill me-2"></i>Thông tin cá nhân</h5>
+
+                    @if (TempData["SuccessInfo"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessInfo"]</div>
+                    }
+
+                    <form asp-action="UpdateInfo" method="post">
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Họ và tên</label>
+                            <input asp-for="FullName" class="form-control shadow-sm" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input asp-for="Email" class="form-control shadow-sm" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Số điện thoại</label>
+                            <input asp-for="PhoneNumber" class="form-control shadow-sm" />
+                        </div>
+
+                        <button class="btn btn-primary w-100 mt-2 rounded-3">
+                            <i class="bi bi-save me-1"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================
+             ĐỔI MẬT KHẨU
+        =========================== -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu</h5>
+
+                    @if (TempData["ErrorPassword"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorPassword"]</div>
+                    }
+
+                    @if (TempData["SuccessPassword"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessPassword"]</div>
+                    }
+
+                    <form asp-action="ChangePassword" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mật khẩu hiện tại</label>
+                            <input asp-for="CurrentPassword" class="form-control shadow-sm" type="password" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mật khẩu mới</label>
+                            <input asp-for="NewPassword" class="form-control shadow-sm" type="password" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nhập lại mật khẩu mới</label>
+                            <input asp-for="ConfirmPassword" class="form-control shadow-sm" type="password" />
+                        </div>
+
+                        <button class="btn btn-warning w-100 mt-2 rounded-3">
+                            <i class="bi bi-arrow-repeat me-1"></i>Cập nhật mật khẩu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

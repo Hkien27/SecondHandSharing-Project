@@ -1,0 +1,159 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+
+<style>
+    .item-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        transition: 0.2s ease-in-out;
+        background: white;
+    }
+
+    .item-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .item-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .badge-boost {
+        background: #ffce3d;
+        color: #000;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+
+    .badge-sold {
+        background: #6b7280;
+        color: white;
+        padding: 3px 6px;
+        border-radius: 6px;
+        font-size: 12px;
+    }
+
+    .actions button, .actions a {
+        margin-right: 6px;
+        margin-bottom: 6px;
+    }
+</style>
+
+<div class="row">
+@foreach (var item in Model)
+{
+    <div class="col-md-4 col-lg-3 mb-4">
+        <div class="item-card shadow-sm">
+
+            <!-- Ảnh -->
+            <div class="position-relative">
+                <img src="@item.Image" class="item-image" />
+
+                @* Gắn nhãn Boost *@
+                @if (item.IsBoosted && item.BoostExpireAt > DateTime.Now)
+                {
+                    <div class="position-absolute top-0 start-0 m-2 badge-boost">
+                        ⭐ Tin nổi bật
+                    </div>
+                }
+
+                @if (item.IsSold)
+                {
+                    <div class="position-absolute top-0 end-0 m-2 badge-sold">
+                        Đã bán
+                    </div>
+                }
+            </div>
+
+            <!-- Nội dung -->
+            <div class="p-3">
+                <h6 class="fw-bold">@item.Title</h6>
+
+                <p class="text-muted mb-1" style="font-size:14px;">
+                    @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                </p>
+
+                @if (item.IsFree)
+                {
+                    <p class="fw-bold text-success">Miễn phí</p>
+                }
+                else
+                {
+                    <p class="fw-bold">@item.Price.ToString("N0") đ</p>
+                }
+
+                <div class="actions mt-2">
+
+                    <!-- Xem -->
+                    <a asp-controller="Item"
+                       asp-action="Details"
+                       asp-route-id="@item.ItemId"
+                       class="btn btn-sm btn-outline-secondary">
+                        Xem
+                    </a>
+
+                    <!-- Boost tin -->
+                    @if (!item.IsSold && item.Status == "Đã duyệt")
+                    {
+                        if (!item.IsBoosted || item.BoostExpireAt <= DateTime.Now)
+                        {
+                            <a asp-controller="Premium"
+   asp-action="BuyBoost"
+   asp-route-itemId="@item.ItemId"
+   class="btn btn-sm btn-outline-warning">
+    🚀 Đẩy tin
+</a>
+
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Đang nổi bật</span>
+                        }
+                    }
+
+                    <!-- Đánh dấu đã bán -->
+                    @if (!item.IsSold && item.Status == "Đã duyệt")
+                    {
+                        <form asp-controller="Item"
+                              asp-action="MarkAsSold"
+                              asp-route-id="@item.ItemId"
+                              method="post"
+                              class="d-inline">
+                            <button class="btn btn-sm btn-success"
+                                    onclick="return confirm('Xác nhận đã bán?');">
+                                Đã bán
+                            </button>
+                        </form>
+                    }
+
+                    <!-- Sửa -->
+                    <a asp-controller="Item"
+                       asp-action="Edit"
+                       asp-route-id="@item.ItemId"
+                       class="btn btn-sm btn-primary">
+                        Sửa
+                    </a>
+
+                    <!-- Xóa -->
+                    <form asp-controller="Item"
+                          asp-action="Delete"
+                          asp-route-id="@item.ItemId"
+                          method="post"
+                          class="d-inline">
+                        <button class="btn btn-sm btn-danger"
+                                onclick="return confirm('Xóa sản phẩm?');">
+                            Xóa
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+</div>

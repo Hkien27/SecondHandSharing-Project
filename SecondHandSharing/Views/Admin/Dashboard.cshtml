@@ -1,0 +1,265 @@
+@model SecondHandSharing.Models.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        --admin-gold: #ffc107;
+        --bg-light: #f8f9fa;
+    }
+
+    body { background-color: #f4f7f6; }
+
+    /* Header hiện đại */
+    .dashboard-header {
+        background: white;
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-left: 8px solid var(--admin-gold);
+    }
+
+    .dashboard-header h1 {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #2d3436;
+    }
+
+    /* Stat Cards mới */
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: rgba(0,0,0,0.03);
+        border-radius: 50%;
+        top: -20px;
+        right: -20px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .bg-light-primary { background: #e7f3ff; color: #007bff; }
+    .bg-light-success { background: #e6fffa; color: #28a745; }
+    .bg-light-warning { background: #fff8e1; color: #ffc107; }
+    .bg-light-info { background: #e0f7fa; color: #17a2b8; }
+
+    .stat-number { font-size: 26px; font-weight: 800; color: #2d3436; }
+    .stat-title { color: #636e72; font-weight: 600; font-size: 14px; }
+
+    /* Content Cards & Tables */
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: none;
+    }
+
+    .card-header-custom {
+        background: white;
+        padding: 20px;
+        font-weight: 700;
+        font-size: 18px;
+        color: #2d3436;
+        border-bottom: 1px solid #f1f2f6;
+    }
+
+    .table-custom thead th {
+        background: #f8f9fa;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: #b2bec3;
+        padding: 15px;
+    }
+
+    .table-custom tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    /* Sidebar-like Navigation Menu */
+    .admin-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 20px;
+        background: #2d3436;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    .admin-nav .nav-link {
+        color: white;
+        background: rgba(255,255,255,0.1);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+
+    .admin-nav .nav-link:hover {
+        background: var(--admin-gold);
+        color: #000;
+    }
+
+    .price-badge {
+        background: #fff5f5;
+        color: #e53e3e;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="dashboard-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>📊 Bảng điều khiển || Admin</h1>
+            <p class="text-muted mb-0">Chào mừng trở lại! Đây là tổng quan hệ thống hôm nay.</p>
+        </div>
+        
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-primary"><i class="fas fa-users"></i></div>
+                <div class="stat-title">Người dùng</div>
+                <div class="stat-number">@Model.TotalUsers</div>
+                <small class="text-primary fw-bold">@Model.TotalAdmins Admin</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-success"><i class="fas fa-box"></i></div>
+                <div class="stat-title">Sản phẩm</div>
+                <div class="stat-number">@Model.TotalItems</div>
+                <small class="text-success fw-bold">@Model.TotalActiveItems đang bán</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-warning"><i class="fas fa-heart"></i></div>
+                <div class="stat-title">Yêu thích</div>
+                <div class="stat-number">@Model.TotalFavorites</div>
+                <small class="text-warning">Lượt tương tác</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-light-info"><i class="fas fa-history"></i></div>
+                <div class="stat-title">Lượt xem</div>
+                <div class="stat-number">@Model.TotalViewHistories</div>
+                <small class="text-info">Toàn thời gian</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-nav mb-5">
+        <a class="nav-link" asp-controller="Admin" asp-action="PendingItems">⏳ Chờ duyệt bài</a>
+        <a class="nav-link" asp-controller="AdminRevenue" asp-action="PendingTopups">💰 Duyệt nạp tiền</a>
+        <a class="nav-link" asp-controller="AdminRevenue" asp-action="Index">📈 Doanh thu</a>
+        <a class="nav-link" asp-controller="Admin" asp-action="ManageUsers">👥 Người dùng</a>
+        <a class="nav-link" asp-controller="Item" asp-action="AdminIndex">📦 Sản phẩm</a>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6 mb-4">
+            <div class="content-card">
+                <div class="card-header-custom d-flex justify-content-between">
+                    <span>🆕 Người dùng mới</span>
+                    <i class="fas fa-user-plus text-muted"></i>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>Email / Vai trò</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model.LatestUsers)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@u.FullName</td>
+                                    <td>
+                                        <div class="small">@u.Email</div>
+                                        <span class="badge bg-light-primary text-primary" style="font-size:10px">@u.Role</span>
+                                    </td>
+                                    <td class="text-muted">@u.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-4">
+            <div class="content-card">
+                <div class="card-header-custom d-flex justify-content-between">
+                    <span>📦 Sản phẩm vừa đăng</span>
+                    <i class="fas fa-tag text-muted"></i>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Giá bán</th>
+                                <th>Ngày đăng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var i in Model.LatestItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-truncate" style="max-width: 150px;">@i.Title</div>
+                                        <small class="text-muted">By: @i.User?.FullName</small>
+                                    </td>
+                                    <td><span class="price-badge">@i.Price.ToString("N0") ₫</span></td>
+                                    <td class="text-muted small">@i.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

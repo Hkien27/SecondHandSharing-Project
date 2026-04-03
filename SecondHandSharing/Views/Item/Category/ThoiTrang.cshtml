@@ -1,0 +1,233 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    ViewData["Title"] = "Mua bán Thời Trang - Phụ Kiện";
+    var currentLoai = Context.Request.Query["loai"].ToString();
+    var currentHang = Context.Request.Query["hang"].ToString();
+}
+
+<style>
+    :root { 
+        --fashion-primary: #f06292; /* Hồng thời trang */
+        --fashion-hover: #d81b60;
+        --main-yellow: #ffc107; 
+        --bg-light: #f8f9fa;
+    }
+
+    .container-fs { max-width: 1200px; margin: 20px auto; padding: 0 15px; font-family: 'Segoe UI', sans-serif; }
+
+    /* 1. BANNER */
+    .fs-banner {
+        background: linear-gradient(135deg, #f06292 0%, #ffc107 100%);
+        border-radius: 20px; padding: 50px 30px; text-align: center; margin-bottom: 30px; color: white;
+        box-shadow: 0 10px 30px rgba(240, 98, 146, 0.3);
+    }
+    .search-wrapper {
+        display: flex; background: white; border-radius: 15px;
+        max-width: 700px; margin: 25px auto 0; overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .search-wrapper input { border: none; flex: 1; padding: 16px 25px; outline: none; color: #333; font-size: 16px; }
+    .btn-search-main { background: #333; color: white; border: none; padding: 0 35px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .btn-search-main:hover { background: #000; }
+
+    /* 2. DANH MỤC LOẠI (TRÒN) */
+    .fs-types-card { background: white; border-radius: 16px; padding: 30px 15px; margin-bottom: 30px; border: 1px solid #eee; }
+    .fs-types-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); text-align: center; gap: 15px; }
+
+    .nav-fs-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #444; transition: 0.3s; padding: 15px; border-radius: 15px; }
+    .circle-img-wrapper { 
+        width: 80px; height: 80px; margin-bottom: 12px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; background: #fff;
+    }
+    .circle-img-wrapper img { width: 100%; height: 100%; object-fit: contain; transition: 0.4s; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+    .nav-fs-item:hover img { transform: scale(1.2) rotate(5deg); }
+    .nav-fs-item.active { background: #fff5f8; border: 1px solid var(--fashion-primary); }
+    .nav-fs-item.active span { font-weight: 700; color: var(--fashion-primary); }
+
+    /* 3. BRAND SECTION (GIỐNG GIA DỤNG) */
+    .brand-section { background: white; padding: 25px; border-radius: 16px; margin-bottom: 30px; display: none; border: 1px solid #eee; }
+    .brand-section.active { display: block; animation: fadeIn 0.5s ease; }
+    .brand-grid { display: flex; gap: 25px; overflow-x: auto; padding: 10px 5px; scrollbar-width: thin; }
+    .brand-link { text-align: center; text-decoration: none; color: #333; min-width: 90px; transition: 0.3s; }
+    
+    .brand-image-wrapper { 
+        width: 75px; height: 75px; background: white; border: 2px solid #f0f0f0; 
+        border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; 
+        justify-content: center; overflow: hidden; transition: all 0.3s ease;
+    }
+    .brand-image-wrapper img { width: 80%; height: 80%; object-fit: contain; }
+    
+    .brand-link:hover .brand-image-wrapper { border-color: var(--fashion-primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(240,98,146,0.2); }
+    .brand-link.active .brand-image-wrapper { border-color: var(--fashion-primary); background: #fff; box-shadow: 0 0 12px rgba(240,98,146,0.4); }
+    .brand-link.active span { color: var(--fashion-primary); font-weight: 700; }
+
+    /* 4. LAYOUT & PRODUCT CARD */
+    .main-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
+    .filter-sidebar { background: white; padding: 25px; border-radius: 16px; border: 1px solid #eee; height: fit-content; position: sticky; top: 20px; }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .fashion-card { background: white; border-radius: 15px; border: 1px solid #eee; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
+    .fashion-card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); border-color: var(--fashion-primary); }
+    
+    .img-box { position: relative; width: 100%; padding-top: 125%; overflow: hidden; background: #fdfdfd; }
+    .img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .fashion-card:hover .img-box img { transform: scale(1.05); }
+    
+    .price { color: #e91e63; font-weight: 700; font-size: 18px; margin: 8px 0; }
+    .badge-condition { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; }
+
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="container-fs">
+    <div class="fs-banner">
+        <h2 class="fw-bold" style="font-size: 40px; letter-spacing: 2px;">FASHION STYLE</h2>
+        <p style="font-size: 18px; opacity: 0.9;">Săn đồ hiệu cũ - Phong cách mới mỗi ngày</p>
+        @* <form action="@Url.Action("ThoiTrang", "Item")" method="get" class="search-wrapper">
+            <input type="text" name="searchTerm" placeholder="Tìm quần áo, túi xách, đồng hồ...">
+            <button type="submit" class="btn-search-main">TÌM KIẾM</button>
+        </form> *@
+    </div>
+
+    @* Loại sản phẩm *@
+    <div class="fs-types-card shadow-sm">
+        <div class="fs-types-bar">
+            <a href="?loai=" class="nav-fs-item @(string.IsNullOrEmpty(currentLoai) ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/nhieuquanao.png" alt="Tất cả"></div>
+                <span>Tất cả</span>
+            </a>
+            @{
+                var categories = new[] {
+                    new { Name = "Áo ", Img = "ao.png" },
+                    new { Name = "Quần ", Img = "quan.png" },
+                    new { Name = "Váy đầm", Img = "vaydam.png" },
+                    new { Name = "Giày dép", Img = "giaydep.png" },
+                    new { Name = "Túi xách", Img = "tuixach.png" },
+                    new { Name = "Đồng hồ", Img = "dongho.png" }
+                };
+                foreach (var c in categories) {
+                    <a href="?loai=@c.Name" class="nav-fs-item @(currentLoai == c.Name ? "active" : "")">
+                        <div class="circle-img-wrapper"><img src="/images/@c.Img" alt="@c.Name"></div>
+                        <span>@c.Name</span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    @* Thương hiệu (Hiện khi chọn loại) *@
+    <div id="brandFilterSection" class="brand-section shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="fw-bold mb-0"><i class="bi bi-patch-check-fill text-primary"></i> Thương hiệu @currentLoai phổ biến</p>
+        </div>
+        <div id="brandContainer" class="brand-grid"></div>
+    </div>
+
+    <div class="main-layout">
+        @* Bộ lọc bên trái *@
+        <aside class="filter-sidebar shadow-sm">
+            <h6 class="fw-bold mb-4 border-bottom pb-2"><i class="bi bi-filter-left"></i> BỘ LỌC TÌM KIẾM</h6>
+            
+            <form method="get">
+                <input type="hidden" name="loai" value="@currentLoai" />
+                <input type="hidden" name="hang" value="@currentHang" />
+                
+                <div class="mb-4">
+                    <label class="small fw-bold mb-2">Khoảng giá (VNĐ)</label>
+                    <input type="number" name="minPrice" class="form-control mb-2 form-control-sm" placeholder="Từ">
+                    <input type="number" name="maxPrice" class="form-control mb-3 form-control-sm" placeholder="Đến">
+                </div>
+
+                <div class="mb-4">
+                    <label class="small fw-bold mb-2">Tình trạng</label>
+                    <select name="condition" class="form-select form-select-sm">
+                        <option value="">Tất cả</option>
+                        <option value="Mới">Mới</option>
+                        <option value="Cũ">Đã sử dụng</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100 fw-bold mb-2 shadow-sm">ÁP DỤNG</button>
+                <a href="@Url.Action("ThoiTrang", "Item")" class="btn btn-outline-secondary w-100 btn-sm mt-2">Xóa tất cả bộ lọc</a>
+            </form>
+        </aside>
+
+        @* Danh sách sản phẩm *@
+        <main>
+            <div class="product-grid">
+                @if (!Model.Any()) {
+                    <div class="text-center py-5 w-100" style="grid-column: 1/-1;">
+                        <img src="/images/empty.png" style="width: 150px; opacity: 0.5;">
+                        <p class="text-muted mt-3">Rất tiếc, không tìm thấy sản phẩm nào phù hợp.</p>
+                    </div>
+                }
+                @foreach (var item in Model) {
+                    <div class="fashion-card">
+                        <a href="@Url.Action("Details", "Item", new { id = item.ItemId })" class="text-decoration-none">
+                            <div class="img-box">
+                                <span class="badge-condition">@item.Condition</span>
+                                <img src="@(string.IsNullOrEmpty(item.Image) ? "/images/no-image.jpg" : item.Image)" alt="@item.Title">
+                            </div>
+                        </a>
+                        <div class="p-3 flex-grow-1 d-flex flex-direction-column">
+                            <h3 class="text-truncate fw-bold mb-1" style="font-size:15px; color:#333;">@item.Title</h3>
+                            <div class="price">@(item.IsFree ? "Miễn phí" : string.Format("{0:N0} đ", item.Price))</div>
+                            
+                            <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center" style="font-size:12px; color:#777;">
+                                <span><i class="bi bi-geo-alt"></i> @(item.Address?.Split(',').Last() ?? "Toàn quốc")</span>
+                                <span>@item.CreatedAt.ToString("dd/MM")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu thương hiệu
+    const fashionData = {
+        "Áo": ["Nike", "Adidas", "Uniqlo", "Lacoste", "Owen"],
+        "Quần": ["Levis", "PT2000", "Blue Exchange", "Uniqlo", "Owen"],
+        "Váy đầm": ["Zara", "HM", "Elise", "Ivy Moda", "Gumac"],
+        "Giày dép": ["Nike", "Adidas", "Bitis", "Converse", "Vans", "Puma"],
+        "Túi xách": ["Gucci", "LV", "Charles Keith", "Vascara", "Pedro"],
+        "Đồng hồ": ["Casio", "Rolex", "Citizen", "Apple", "Tissot"]
+    };
+
+    // Hàm lấy đường dẫn Logo (Chuẩn hóa tên file)
+    function getLogoPath(brandName) {
+        if (!brandName) return "/images/brands/default.png";
+        const fileName = brandName.toLowerCase()
+                                  .replace(/ /g, "")      // Xóa khoảng trắng
+                                  .replace(/&/g, "");     // Xóa ký tự &
+        return `/images/${fileName}.png`;
+    }
+
+    const currentLoai = "@Html.Raw(currentLoai)";
+    const currentHang = "@Html.Raw(currentHang)";
+    const brandSection = document.getElementById('brandFilterSection');
+    const brandContainer = document.getElementById('brandContainer');
+
+    // Hiển thị thanh Brand nếu có loại được chọn
+    if (currentLoai && fashionData[currentLoai]) {
+        brandSection.classList.add('active');
+        brandContainer.innerHTML = fashionData[currentLoai].map(brand => {
+            const isActive = (brand === currentHang) ? 'active' : '';
+            const logoPath = getLogoPath(brand);
+            
+            return `
+                <a href="?loai=${encodeURIComponent(currentLoai)}&hang=${encodeURIComponent(brand)}" 
+                   class="brand-link ${isActive}">
+                    <div class="brand-image-wrapper">
+                        <img src="${logoPath}" 
+                             alt="${brand}" 
+                             onerror="this.src='/images/brands/default.png';">
+                    </div>
+                    <span style="font-size:12px; font-weight:500;">${brand}</span>
+                </a>
+            `;
+        }).join('');
+    }
+</script>

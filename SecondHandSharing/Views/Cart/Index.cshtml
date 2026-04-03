@@ -1,0 +1,37 @@
+@* @model IEnumerable<dynamic>
+
+<h2>🛒 Giỏ hàng của bạn</h2>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Item.Title</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Item.Price.ToString("N0") ₫</td>
+                    <td>
+                        <form asp-action="Remove" method="post">
+                            <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                            <button type="submit" class="btn btn-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Giỏ hàng của bạn đang trống.</p>
+} *@

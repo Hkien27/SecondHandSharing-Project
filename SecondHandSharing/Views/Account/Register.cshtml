@@ -1,0 +1,124 @@
+@model SecondHandSharing.Models.User
+@{
+    ViewData["Title"] = "Tạo tài khoản";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/register.css">
+    <style>
+        /* Style bổ sung cho phần tải ảnh */
+        .avatar-upload {
+            position: relative;
+            max-width: 120px;
+            margin: 0 auto 20px auto;
+        }
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            border-radius: 50%;
+            border: 3px solid #ff8800;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .upload-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #ff8800;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        #imagePreview { display: block; }
+    </style>
+</head>
+<body>
+    <main class="register-container">
+        <div class="register-wrapper">
+            <div class="register-image">
+                <img src="~/images/green-forest.jpg" alt="Forest landscape">
+            </div>
+
+            <div class="register-form-wrapper">
+                <div class="register-form">
+                    <h1 class="form-title">Tạo tài khoản</h1>
+                    <p class="form-subtitle">Nhập thông tin chi tiết của bạn bên dưới</p>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    @* QUAN TRỌNG: Thêm enctype="multipart/form-data" để gửi được file *@
+                    <form asp-action="Register" method="post" enctype="multipart/form-data" class="form-content">
+                        
+                        <div class="avatar-upload">
+                            <div class="avatar-preview">
+                                <img id="imagePreview" src="~/images/avatar_default.png" alt="Preview" />
+                            </div>
+                            <label for="avatarFile" class="upload-badge">
+                                <i class="bi bi-camera-fill">📸</i>
+                            </label>
+                            <input type="file" name="AvatarFile" id="avatarFile" accept="image/*" style="display: none;">
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="FullName" type="text" class="form-input" placeholder="Họ và tên" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="Email" type="email" class="form-input" placeholder="Email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input name="PhoneNumber" type="text" class="form-input" placeholder="Số điện thoại" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="PasswordHash" type="password" class="form-input" placeholder="Mật khẩu" required>
+                        </div>
+
+                        <button type="submit" class="btn-register">Tạo Tài Khoản</button>
+                    </form>
+
+                    <button class="btn-google">
+                        <span class="google-icon">G</span> Đăng nhập bằng Google
+                    </button>
+
+                    <div class="signin-link">
+                        <span>Bạn có tài khoản?</span>
+                        <a asp-action="Login">Đăng nhập</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Script để xem trước ảnh ngay khi chọn file
+        document.getElementById('avatarFile').onchange = evt => {
+            const [file] = document.getElementById('avatarFile').files
+            if (file) {
+                document.getElementById('imagePreview').src = URL.createObjectURL(file)
+            }
+        }
+    </script>
+</body>
+</html>

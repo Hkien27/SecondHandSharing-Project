@@ -1,0 +1,322 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+@{
+    ViewData["Title"] = "Mua bán Thú cưng - Hệ thống chia sẻ";
+    var currentLoai = Context.Request.Query["loai"].ToString();
+    var currentGiong = Context.Request.Query["giong"].ToString(); // Thay 'hang' bằng 'giong' cho thú cưng
+}
+
+<style>
+    /* 1. CONTAINER CHUNG */
+    .pet-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* 2. BANNER MÀU XANH LÁ/CAM ĐẶC TRƯNG THÚ CƯNG */
+    .pet-banner {
+        background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+        border-radius: 16px;
+        padding: 40px 30px;
+        text-align: center;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+    }
+
+    .pet-banner h2 {
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .search-wrapper {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        max-width: 700px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .search-wrapper input {
+        border: none;
+        flex: 1;
+        padding: 14px 20px;
+        outline: none;
+        font-size: 15px;
+    }
+
+    .btn-search-main {
+        background: #333;
+        color: white;
+        border: none;
+        padding: 14px 30px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* 3. KHU VỰC DANH MỤC ICON (TO & RÕ) */
+    .pet-types-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+
+    .pet-types-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+        text-align: center;
+        gap: 15px;
+    }
+
+    .nav-pet-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #222;
+        padding: 15px 5px;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+    /* KHUNG CHỨA ẢNH PHÓNG TO */
+    .circle-img-wrapper {
+        width: 120px; 
+        height: 100px; 
+        background: transparent !important; 
+        border: none !important;           
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .circle-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
+    .nav-pet-item:hover .circle-img-wrapper img {
+        transform: scale(1.15);
+    }
+
+    .nav-pet-item.active {
+        background-color: #f1f8e9; /* Xanh lá nhạt */
+    }
+
+    .nav-pet-item.active span {
+        font-weight: 700;
+        color: #ff8a00;
+    }
+
+    .nav-pet-item span {
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    /* 4. BRAND/GIONG SECTION (DÀNH CHO CHÓ/MÈO CỤ THỂ) */
+    .brand-section {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        display: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .brand-section.active { display: block; }
+
+    .brand-grid {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 10px 5px;
+    }
+
+    .brand-link {
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        min-width: 90px;
+    }
+
+    .brand-image-wrapper {
+        width: 65px;
+        height: 65px;
+        background: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .brand-link.active .brand-image-wrapper {
+        border-color: #ff8a00;
+        background: white;
+    }
+
+    /* 5. LAYOUT CHÍNH */
+    .main-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .filter-sidebar {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        height: fit-content;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .item-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .item-img { width: 100%; height: 180px; object-fit: cover; }
+    .item-info { padding: 15px; }
+    .item-price { color: #ff5722; font-weight: 700; font-size: 17px; }
+
+    @@media (max-width: 992px) {
+        .main-layout { grid-template-columns: 1fr; }
+        .pet-types-bar { grid-template-columns: repeat(3, 1fr); }
+    }
+</style>
+
+<div class="pet-container">
+    <div class="pet-banner">
+        <h2>Tìm người bạn bốn chân mới cho gia đình!</h2>
+        @* <form action="@Url.Action("ThuCung", "Item")" method="get" class="search-wrapper">
+            <input type="text" name="searchTerm" placeholder="Tìm chó Poodle, mèo Anh lông ngắn...">
+            <button type="submit" class="btn-search-main">Tìm ngay</button>
+        </form> *@
+    </div>
+
+    <div class="pet-types-card">
+        <div class="pet-types-bar">
+            <a href="?loai=" class="nav-pet-item @(string.IsNullOrEmpty(currentLoai) ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/tatcathu.png" alt="Tất cả"></div>
+                <span>Tất cả</span>
+            </a>
+            <a href="?loai=Chó" class="nav-pet-item @(currentLoai == "Chó" ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/cho.png" alt="Chó"></div>
+                <span>Chó</span>
+            </a>
+            <a href="?loai=Mèo" class="nav-pet-item @(currentLoai == "Mèo" ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/meo.png" alt="Mèo"></div>
+                <span>Mèo</span>
+            </a>
+            <a href="?loai=Chim" class="nav-pet-item @(currentLoai == "Chim" ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/chim.png" alt="Chim"></div>
+                <span>Chim</span>
+            </a>
+            <a href="?loai=Gà" class="nav-pet-item @(currentLoai == "Gà" ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/ga.png" alt="Gà"></div>
+                <span>Gà</span>
+            </a>
+            <a href="?loai=Khác" class="nav-pet-item @(currentLoai == "Khác" ? "active" : "")">
+                <div class="circle-img-wrapper"><img src="/images/cacloaikhac.png" alt="Khác"></div>
+                <span>Thú cưng khác</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="brandFilterSection" class="brand-section">
+        <p><strong>🐾 Giống @currentLoai phổ biến:</strong></p>
+        <div id="brandContainer" class="brand-grid"></div>
+    </div>
+
+    <div class="main-layout">
+        <aside class="filter-sidebar">
+            <h6>Bộ lọc</h6>
+            <form method="get">
+                <input type="hidden" name="loai" value="@currentLoai" />
+                <div class="mb-3">
+                    <label class="small fw-bold">Độ tuổi</label>
+                    <select name="age" class="form-select form-select-sm mt-1">
+                        <option value="">Tất cả</option>
+                        <option value="con">Thú non</option>
+                        <option value="truongthanh">Trưởng thành</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Lọc tin</button>
+            </form>
+        </aside>
+
+        <main>
+            <div class="product-grid">
+                @foreach (var item in Model) {
+                    <div class="item-card">
+                        <a href="@Url.Action("Details", "Item", new { id = item.ItemId })">
+                            <img src="@item.Image" class="item-img">
+                        </a>
+                        <div class="item-info">
+                            <div class="item-title">@item.Title</div>
+                            <div class="item-price">@(item.IsFree ? "Tặng miễn phí" : string.Format("{0:N0} đ", item.Price))</div>
+                            <div class="small text-muted mt-2">@item.Address.Split(',').Last() • @item.CreatedAt.ToString("dd/MM")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu giống loài (Thay cho hãng xe)
+    const hierarchalData = {
+        "Chó": ["Poodle", "Phú Quốc", "Corgi", "Alaska", "Golden", "Husky", "Becgie", "Chó cỏ"],
+        "Mèo": ["Anh lông ngắn", "Anh lông dài", "Mèo Ba Tư", "Mèo Ta", "Mèo Xiêm", "Mèo Sphinx"],
+        "Chim": ["Chào mào", "Sơn ca", "Vẹt", "Khướu", "Yến phụng"],
+        "Gà": ["Gà tre", "Gà chọi", "Gà Đông Tảo", "Gà Serama"]
+    };
+
+    const currentLoai = "@Html.Raw(currentLoai)";
+    const currentGiong = "@Html.Raw(currentGiong)";
+    const brandSection = document.getElementById('brandFilterSection');
+    const brandContainer = document.getElementById('brandContainer');
+
+    if (currentLoai && hierarchalData[currentLoai]) {
+        brandSection.classList.add('active');
+        let html = hierarchalData[currentLoai].map(giong => {
+            const isActive = (giong === currentGiong) ? 'active' : '';
+            return `
+                <a href="?loai=${encodeURIComponent(currentLoai)}&giong=${encodeURIComponent(giong)}" class="brand-link ${isActive}">
+                    <div class="brand-image-wrapper">
+                        <div style="font-weight:bold; color:#2e7d32; font-size:18px;">${giong[0]}</div>
+                    </div>
+                    <span>${giong}</span>
+                </a>
+            `;
+        }).join('');
+        brandContainer.innerHTML = html;
+    }
+</script>

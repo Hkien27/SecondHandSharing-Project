@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Nạp tiền qua MoMo";
+}
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning bg-gradient text-dark">
+                    <h5 class="mb-0">💰 Nạp tiền qua MoMo (thủ công)</h5>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="TopUpMomo" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Số tiền muốn nạp (đ)</label>
+                            <input type="number" name="amount" class="form-control" min="10000" step="1000" required />
+                            <div class="form-text">Tối thiểu 10.000đ</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            Tiếp tục thanh toán với MoMo
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

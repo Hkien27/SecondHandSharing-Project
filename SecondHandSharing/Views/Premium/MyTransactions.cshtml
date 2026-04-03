@@ -1,0 +1,270 @@
+@model IEnumerable<SecondHandSharing.Models.Transaction>
+@{
+    ViewData["Title"] = "Lịch sử giao dịch";
+}
+
+<style>
+    .transaction-header {
+        background: linear-gradient(90deg, #ffcc00, #ffd633);
+        color: #222;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .transaction-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .transaction-header p {
+        margin: 0.5rem 0 0;
+        font-size: 14px;
+    }
+
+    .transaction-table {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        background: #fff;
+    }
+
+    .transaction-table thead {
+        background-color: #f8f9fa;
+    }
+
+    .transaction-table thead th {
+        border: none;
+        font-weight: 700;
+        color: #333;
+        padding: 1rem;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .transaction-table tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+
+    .transaction-table tbody tr:hover {
+        background-color: #fff9e6;
+    }
+
+    .transaction-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .badge-type {
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-boost {
+        background-color: #ffe6cc;
+        color: #ff8800;
+    }
+
+    .badge-topup {
+        background-color: #e6f3ff;
+        color: #0066cc;
+    }
+
+    .badge-vip {
+        background-color: #f0e6ff;
+        color: #7c3aed;
+    }
+
+    .amount {
+        font-weight: 700;
+        font-size: 16px;
+        white-space: nowrap;
+    }
+
+    .amount-plus {
+        color: #16a34a;
+    }
+
+    .amount-minus {
+        color: #ff8800;
+    }
+
+    .status-success {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        color: #ffc107;
+        font-weight: 600;
+    }
+
+    .status-failed {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #999;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="transaction-header">
+        <h2>🧾 Lịch sử giao dịch</h2>
+        <p>Xem chi tiết tất cả các giao dịch ví, VIP, BOOST của bạn trên hệ thống</p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h5>Không có giao dịch nào</h5>
+            <p>Bạn chưa thực hiện giao dịch nào.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table transaction-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Loại</th>
+                        <th>Chi tiết</th>
+                        <th>Phương thức</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        // TopUp: tiền nạp vào ví (+)
+                        bool isTopUp = string.Equals(t.Type, "TopUp", StringComparison.OrdinalIgnoreCase);
+
+                        string amountClass = isTopUp
+                            ? "amount amount-plus"
+                            : "amount amount-minus";
+
+                        string sign = isTopUp ? "+" : "-";
+
+                        <tr>
+                            <!-- Thời gian -->
+                            <td>
+                                @Html.Raw(
+                                    t.CreatedAt.ToString(
+                                        "dd/MM/yyyy<br/>HH:mm",
+                                        System.Globalization.CultureInfo.GetCultureInfo("vi-VN")
+                                    )
+                                )
+                            </td>
+
+                            <!-- Loại giao dịch -->
+                            <td>
+                                @if (t.Package != null)
+                                {
+                                    if (t.Package.Type == "BOOST")
+                                    {
+                                        <span class="badge-type badge-boost">🚀 BOOST</span>
+                                    }
+                                    else if (t.Package.Type == "VIP")
+                                    {
+                                        <span class="badge-type badge-vip">⭐ VIP</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-type badge-boost">@t.Package.Type</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge-type badge-topup">💳 TOPUP</span>
+                                }
+                            </td>
+
+                            <!-- Chi tiết -->
+                            <td>
+                                @if (t.Package != null)
+                                {
+                                    <div><strong>@t.Package.Name</strong></div>
+                                }
+                                @if (t.Item != null)
+                                {
+                                    <div class="small text-muted">Tin: @t.Item.Title</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(t.Note))
+                                {
+                                    <div class="small text-muted">@t.Note</div>
+                                }
+                            </td>
+
+                            <!-- Phương thức -->
+                            <td>
+                                @{
+                                    string methodLabel = t.PaymentMethod switch
+                                    {
+                                        "WALLET_TOPUP" => "Nạp ví (giả lập)",
+                                        "WALLET"       => "Ví nội bộ",
+                                        "MOMO"         => "MoMo",
+                                        _              => t.PaymentMethod
+                                    };
+                                }
+                                @methodLabel
+                            </td>
+
+                            <!-- Số tiền -->
+                            <td>
+                                <span class="@amountClass">
+                                    @sign@t.Amount.ToString("N0") đ
+                                </span>
+                            </td>
+
+                            <!-- Trạng thái -->
+                            <td>
+                                @{
+                                    // Chuẩn hóa để view hiển thị đúng
+                                    var status = t.Status?.ToUpperInvariant() ?? "";
+                                }
+                                @if (status == "SUCCESS")
+                                {
+                                    <span class="status-success">✓ Thành công</span>
+                                }
+                                else if (status == "PENDING")
+                                {
+                                    <span class="status-pending">⏳ Chờ xử lý</span>
+                                }
+                                else if (status == "CANCEL")
+                                {
+                                    <span class="status-failed">✗ Đã hủy</span>
+                                }
+                                else
+                                {
+                                    <span class="status-failed">@t.Status</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

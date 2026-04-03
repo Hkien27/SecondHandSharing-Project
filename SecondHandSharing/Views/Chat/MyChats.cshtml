@@ -1,0 +1,260 @@
+@model IEnumerable<SecondHandSharing.Models.Conversation>
+
+@{
+    ViewData["Title"] = "Hộp thoại của tôi";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #ffcc00 0%, #ffd633 100%);
+            padding: 24px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 32px;
+        }
+
+        .chat-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #222;
+            margin: 0;
+        }
+
+        /* Container */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .empty-state i {
+            font-size: 56px;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            color: #999;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Chat List */
+        .chat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Chat Item Card */
+        .chat-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none !important;
+            color: inherit;
+        }
+
+        .chat-item:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Avatar */
+        .chat-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffcc00, #ffd633);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #222;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Chat Info */
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .chat-time {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* Action Button */
+        .btn-open-chat {
+            background: linear-gradient(135deg, #ffcc00, #ffd633);
+            border: none;
+            color: #222;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-open-chat:hover {
+            background: linear-gradient(135deg, #ffb800, #ffcc00);
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .btn-open-chat:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive */
+        @@media (max-width: 576px) {
+            .chat-header {
+                padding: 16px 0;
+                margin-bottom: 20px;
+            }
+
+            .chat-header h1 {
+                font-size: 22px;
+            }
+
+            .chat-item {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .chat-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .chat-name {
+                font-size: 14px;
+            }
+
+            .btn-open-chat {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Animation */
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-item {
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="chat-container">
+            <h1>
+                <i class="bi bi-chat-dots me-2"></i>Hộp thoại của tôi
+            </h1>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="chat-container">
+        @if (!Model.Any())
+        {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <i class="bi bi-chat-dots"></i>
+                <p>Bạn chưa có cuộc trò chuyện nào.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Chat List -->
+            <div class="chat-list">
+                @foreach (var c in Model)
+                {
+                    var partner = c.User1Id == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value)
+                        ? c.User2
+                        : c.User1;
+
+                    var firstLetter = partner?.FullName?.FirstOrDefault().ToString().ToUpper() ?? "?";
+
+                    <a asp-action="Room" asp-route-id="@c.ConversationId" class="chat-item">
+                        <!-- Avatar -->
+                        <div class="chat-avatar">
+                            @firstLetter
+                        </div>
+
+                        <!-- Info -->
+                        <div class="chat-info">
+                            <div class="chat-name">@partner?.FullName</div>
+                            <div class="chat-time">
+                                <i class="bi bi-clock me-1"></i>
+                                Bắt đầu: @c.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+
+                        <!-- Button -->
+                        <button type="button" class="btn btn-open-chat">
+                            <i class="bi bi-chat-fill me-1"></i>Mở
+                        </button>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+@model SecondHandSharing.Models.ViewModels.BuyBoostViewModel
+@{
+    ViewData["Title"] = "Gói Đẩy Tin Premium";
+}
+
+<style>
+    /* Tổng thể trang */
+    .boost-page {
+        background-color: #f8fafc;
+        padding-bottom: 50px;
+    }
+
+    /* Header Section */
+    .boost-header {
+        background: linear-gradient(135deg, #f97316 0%, #ed64a6 100%);
+        color: white;
+        padding: 60px 0;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .boost-header h2 { font-weight: 800; font-size: 2.5rem; }
+
+    /* Card tin đăng */
+    .item-selector-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        margin-top: -80px;
+        border: none;
+    }
+
+    /* Bảng giá (Pricing Cards) */
+    .pricing-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        position: relative;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border-color: #f97316;
+    }
+
+    .pricing-card.featured {
+        border-color: #f97316;
+        background: #fffaf5;
+    }
+
+    .badge-popular {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #f97316;
+        color: white;
+        padding: 5px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .package-name { font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 10px; }
+    .package-price { font-size: 2.5rem; font-weight: 800; color: #f97316; margin-bottom: 5px; }
+    .package-duration { color: #6b7280; font-size: 1rem; margin-bottom: 25px; }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .feature-list li {
+        padding: 8px 0;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+    }
+
+    .feature-list li i { color: #10b981; margin-right: 10px; }
+
+    .btn-buy {
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+    }
+
+    /* Custom Select */
+    .custom-select-lg {
+        height: 50px;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        font-weight: 600;
+    }
+</style>
+
+<div class="boost-page">
+    <div class="boost-header">
+        <div class="container">
+            <h2>🚀 Đẩy Tin Lên Top Ngay</h2>
+            <p class="lead">Tiếp cận gấp 10 lần khách hàng tiềm năng bằng gói dịch vụ ưu tiên</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <div class="item-selector-card shadow">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center text-md-start">
+                            <h4 class="fw-bold mb-1">BƯỚC 1:</h4>
+                            <p class="text-muted mb-md-0">Chọn sản phẩm bạn muốn đẩy</p>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="globalItemSelect" class="form-select custom-select-lg" onchange="updateItemInputs(this.value)">
+                                <option value="">-- Danh sách tin đăng của bạn --</option>
+                                @foreach (var item in Model.MyItems)
+                                {
+                                    <option value="@item.ItemId">@item.Title (@item.Price.ToString("N0") đ)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-center fw-bold mb-4">BƯỚC 2: Chọn gói dịch vụ phù hợp</h3>
+
+        <div class="row g-4 justify-content-center">
+            @foreach (var p in Model.BoostPackages)
+            {
+                bool isHot = p.Name.ToLower().Contains("pro") || p.DurationDays >= 7;
+                <div class="col-lg-4 col-md-6">
+                    <div class="pricing-card @(isHot ? "featured" : "") shadow-sm">
+                        @if (isHot) { <div class="badge-popular">PHỔ BIẾN NHẤT</div> }
+                        
+                        <div class="package-name">@p.Name</div>
+                        <div class="package-price">@p.Price.ToString("N0")<small style="font-size: 1rem">đ</small></div>
+                        <div class="package-duration">Hiệu lực trong @p.DurationDays ngày</div>
+
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Luôn nằm ở đầu danh mục</li>
+                            <li><i class="fas fa-check-circle"></i> Huy hiệu nổi bật trên ảnh</li>
+                            <li><i class="fas fa-check-circle"></i> Tiếp cận @(p.DurationDays * 100)+ người xem</li>
+                            <li><i class="fas fa-check-circle"></i> Hỗ trợ ưu tiên 24/7</li>
+                        </ul>
+
+                        <form asp-action="BuyBoost" method="post" onsubmit="return validateSelection()">
+                            <input type="hidden" name="packageId" value="@p.PackageId" />
+                            <input type="hidden" name="itemId" class="target-item-id" value="" />
+                            
+                            <button type="submit" class="btn btn-buy w-100 @(isHot ? "btn-warning" : "btn-outline-warning")">
+                                Kích hoạt ngay
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    // Đồng bộ giá trị Item đã chọn vào các form ẩn
+    function updateItemInputs(val) {
+        const hiddenInputs = document.querySelectorAll('.target-item-id');
+        hiddenInputs.forEach(input => {
+            input.value = val;
+        });
+    }
+
+    // Kiểm tra trước khi submit xem đã chọn tin chưa
+    function validateSelection() {
+        const selectedValue = document.getElementById('globalItemSelect').value;
+        if (!selectedValue) {
+            alert('Vui lòng chọn một tin đăng trước khi tiếp tục!');
+            return false;
+        }
+        return confirm('Xác nhận thanh toán và đẩy tin ngay bây giờ?');
+    }
+</script>

@@ -1,0 +1,41 @@
+<h3>🤖 Chat AI gợi ý sản phẩm</h3>
+
+<div id="chatBox" style="height:400px;overflow:auto;border:1px solid #ccc;padding:10px"></div>
+
+<input id="chatInput" class="form-control mt-2" placeholder="Hỏi gì đó..." />
+<button class="btn btn-primary mt-2" onclick="send()">Gửi</button>
+
+<script>
+async function send() {
+    const input = document.getElementById("chatInput");
+    const msg = input.value;
+    if (!msg) return;
+
+    const box = document.getElementById("chatBox");
+    box.innerHTML += `<p><b>🧑 Bạn:</b> ${msg}</p>`;
+    input.value = "";
+
+    const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+
+    box.innerHTML += `<p><b>🤖 AI:</b> ${data.reply}</p>`;
+
+    if (data.products?.length) {
+        data.products.forEach(p => {
+            box.innerHTML += `
+              <div style="margin-left:20px">
+                👉 <a href="/Items/Details/${p.itemId}">
+                  ${p.title} - ${p.price.toLocaleString()}đ
+                </a>
+              </div>`;
+        });
+    }
+
+    box.scrollTop = box.scrollHeight;
+}
+</script>

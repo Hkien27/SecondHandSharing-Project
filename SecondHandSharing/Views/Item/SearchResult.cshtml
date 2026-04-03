@@ -1,0 +1,182 @@
+@model IEnumerable<SecondHandSharing.Models.Item>
+
+@{
+    ViewData["Title"] = "Kết quả tìm kiếm";
+}
+
+<style>
+    .search-header {
+        background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .search-header h4 {
+        color: #fff;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .search-header .result-count {
+        color: #fff;
+        opacity: 0.9;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+    
+    .product-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .product-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .product-card .card-body {
+        padding: 1rem;
+    }
+    
+    .product-card .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        min-height: 3rem;
+    }
+    
+    .product-price {
+        color: #ff6600;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-location {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .product-location i {
+        color: #ff9900;
+    }
+    
+    .btn-view-detail {
+        background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view-detail:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+        color: #fff;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h5 {
+        color: #666;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #999;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="search-header">
+        <h4>🔍 Kết quả tìm kiếm cho "@ViewBag.Keyword"</h4>
+        <div class="result-count">
+            Tìm thấy @Model.Count() sản phẩm
+        </div>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <h5>Không tìm thấy sản phẩm nào</h5>
+                    <p>Thử tìm kiếm với từ khóa khác hoặc xem các sản phẩm khác</p>
+                    <a asp-controller="Item" asp-action="Index" class="btn btn-view-detail mt-3" style="width: auto; padding: 0.5rem 2rem;">
+                        Xem tất cả sản phẩm
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card product-card">
+                        <img src="@Url.Content(item.Image ?? "~/images/no-image.png")"
+                                 alt="@item.Title"
+                                 class="favorite-img-top" />
+                        <div class="card-body">
+                            <h6 class="card-title">@item.Title</h6>
+                            <div class="product-price">
+                                @item.Price.ToString("N0") đ
+                            </div>
+                            @if (!string.IsNullOrEmpty(item.Address))
+                            {
+                                <div class="product-location">
+                                    <i class="bi bi-geo-alt-fill"></i> @item.Address
+                                </div>
+                            }
+                            <a href="/Item/Details/@item.ItemId" class="btn btn-view-detail">
+                                <i class="bi bi-eye"></i> Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

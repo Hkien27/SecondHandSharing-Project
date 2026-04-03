@@ -1,0 +1,770 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SecondHandSharing</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* ============ CÀI ĐẶT CHUNG ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* ============ NAVBAR CHÍNH ============ */
+        .navbar-chotot {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 50%, #ff8c00 100%);
+    box-shadow: 0 8px 32px rgba(255, 140, 0, 0.15);
+    padding: 0.8rem 0;
+    position: sticky;   /* hoặc fixed cũng được */
+    top: 0;
+    z-index: 1050;      /* quan trọng: navbar luôn nằm trên */
+}
+
+
+        .navbar-chotot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .navbar-chotot .navbar-brand {
+            font-weight: 800;
+            color: #222 !important;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-chotot .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .navbar-chotot .navbar-brand img {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .navbar-chotot .navbar-brand:hover img {
+            transform: scale(1.1);
+        }
+
+        /* ============ MENU ITEMS ============ */
+        .navbar-chotot .nav-link {
+            font-weight: 600;
+            color: #222 !important;
+            margin: 0 0.5rem;
+            padding: 0.6rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-chotot .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6600, #ff8800);
+            border-radius: 3px;
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-chotot .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff !important;
+        }
+
+        .navbar-chotot .nav-link:hover::before {
+            width: 60%;
+        }
+
+        /* ============ NÚT ĐĂNG TIN ============ */
+        .btn-post {
+            background: linear-gradient(135deg, #ff6600 0%, #ff8800 100%);
+            color: white !important;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
+            font-size: 0.95rem;
+        }
+
+        .btn-post:hover {
+            background: linear-gradient(135deg, #ff5500 0%, #ff7700 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 136, 0, 0.4);
+            color: white !important;
+        }
+
+        .btn-post:active {
+            transform: translateY(0);
+        }
+
+        /* ============ TÌM KIẾM ============ */
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 8px 16px;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin: 0 1rem;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 6px 24px rgba(255, 136, 0, 0.2);
+            background-color: #fff;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+            background: transparent;
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        .search-box button {
+            border: none;
+            background: none;
+            color: #ff8800;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-box button:hover {
+            color: #ff6600;
+            transform: scale(1.1);
+        }
+
+        /* ============ GỢI Ý TÌM KIẾM ============ */
+        #suggestionList {
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 4px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            background: white;
+        }
+
+        #suggestionList .list-group-item {
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        #suggestionList .list-group-item:hover {
+            background-color: #fff3e0;
+            padding-left: 20px;
+            color: #ff8800;
+            font-weight: 500;
+        }
+
+        #suggestionList .list-group-item:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        #suggestionList .list-group-item:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* ============ ICONS NGƯỜI DÙNG ============ */
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-icons a {
+            color: #222;
+            font-size: 22px;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .nav-icons a:hover {
+            color: #ff6600;
+            background-color: rgba(255, 136, 0, 0.1);
+            transform: scale(1.15);
+        }
+
+        /* ============ DROPDOWN NGƯỜI DÙNG ============ */
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-menu {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            background: white;
+            padding: 0;
+            margin-top: 12px;
+            overflow: hidden;
+            min-width: 280px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu-end {
+            right: 0 !important;
+        }
+
+        .dropdown-menu .dropdown-item {
+            padding: 12px 18px;
+            border: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #fff3e0;
+            color: #ff8800;
+            padding-left: 24px;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            margin: 8px 0;
+            border-color: #f0f0f0;
+        }
+
+        /* ============ PHẦN THÔNG TIN NGƯỜI DÙNG ============ */
+        .user-profile-section {
+            padding: 20px;
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            text-align: center;
+            color: white;
+        }
+
+        .user-profile-section img {
+            width: 80px;
+            height: 80px;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-profile-section h6 {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-top: 12px;
+        }
+
+        .user-profile-section p {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+
+        .btn-warning {
+            background-color: #ffd400;
+            border: none;
+            color: #222;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-warning:hover {
+            background-color: #ffcc00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 212, 0, 0.3);
+        }
+
+        /* ============ NÚT ĐĂNG XUẤT ============ */
+        .dropdown-menu .dropdown-item.text-danger {
+            color: #e74c3c !important;
+            font-weight: 700;
+        }
+
+        .dropdown-menu .dropdown-item.text-danger:hover {
+            background-color: #ffebee;
+            color: #c0392b !important;
+        }
+
+        /* ============ MOBILE MENU ============ */
+        .navbar-toggler {
+            border: none;
+            padding: 0.25rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23222' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @@media (max-width: 991px) {
+            .search-box {
+                margin: 1rem 0;
+            }
+
+            .navbar-chotot .nav-link {
+                margin: 0.25rem 0;
+            }
+
+            .nav-icons {
+                margin-top: 1rem;
+                justify-content: flex-start;
+            }
+
+            .navbar-nav {
+                padding-top: 1rem;
+            }
+
+            .navbar-nav.ms-3 {
+                margin-top: 1rem;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+                padding-top: 1rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .search-box {
+                padding: 6px 12px;
+            }
+
+            .search-box input {
+                font-size: 14px;
+            }
+
+            .nav-icons {
+                gap: 12px;
+            }
+
+            .nav-icons a {
+                font-size: 18px;
+            }
+
+            .dropdown-menu {
+                min-width: 100%;
+            }
+
+            .btn-post {
+                width: 100%;
+                padding: 0.8rem 1rem;
+            }
+        }
+
+        /* ============ FOOTER ============ */
+        footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        footer a {
+            color: #ff8800;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #ff6600;
+            text-decoration: underline;
+        }
+
+        /* ============ CONTAINER ============ */
+        main {
+            min-height: calc(100vh - 300px);
+        }
+
+        /* ============ SCROLLBAR SUGGESTION ============ */
+        #suggestionList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #suggestionList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #suggestionList::-webkit-scrollbar-thumb {
+            background: #ff8800;
+            border-radius: 10px;
+        }
+.vip-btn {
+        background: linear-gradient(90deg, #ffdf00, #ffb800);
+        border-radius: 12px !important;
+        padding: 10px 0;
+        font-size: 14px;
+        border: none;
+        display: block;
+        text-align: center;
+        margin-top: -8px; /* 👈 khoảng cách trên */
+    }
+
+    .vip-btn:hover {
+        background: linear-gradient(90deg, #ffd700, #ffa500);
+        
+        #suggestionList::-webkit-scrollbar-thumb:hover {
+            background: #ff6600;
+        }
+        
+    </style>
+</head>
+
+<body>
+@{
+        var avatarPath = "/images/avatar_default.png";
+
+        if (User?.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var claimAvatar = User.FindFirst("AvatarPath")?.Value;
+            if (!string.IsNullOrEmpty(claimAvatar))
+            {
+                avatarPath = claimAvatar;
+            }
+        }
+    }
+    <!-- THANH MENU CHÍNH -->
+    <nav class="navbar navbar-expand-lg navbar-chotot">
+        <div class="container-fluid px-2 px-lg-3">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" asp-controller="Item" asp-action="Index">
+                <img src="~/images/logo.png" alt="Logo" style="height:50px;" class="me-3" />
+            </a>
+
+            <!-- Nút menu mobile -->
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navbarMenu"
+                    aria-controls="navbarMenu" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMenu">
+                <!-- MENU ADMIN -->
+                @if (User.Identity.IsAuthenticated && User.IsInRole("ADMIN"))
+                {
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-warning fw-bold"
+                               asp-controller="Admin" asp-action="Dashboard">
+                                <i class="bi bi-gear-fill me-1"></i> Quản trị
+                            </a>
+                        </li>
+                    </ul>
+                }
+
+                <!-- MENU TRÁI -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Item" asp-action="Index">
+                            <i class="bi bi-house-door-fill me-1"></i> Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Item" asp-action="GiaDung">
+                            <i class="bi bi-lamp me-1"></i> Gia dụng
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Item" asp-action="NoiThat">
+                            <i class="bi bi-building me-1"></i> Nội thất
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Item" asp-action="ThoiTrang">
+                            <i class="bi bi-bag-check me-1"></i> Thời trang
+                        </a>
+                    </li>
+                    @* <li class="nav-item">
+                        <a class="nav-link btn-post text-nowrap"
+                           asp-controller="Item" asp-action="PostItem">
+                            <i class="bi bi-plus-circle me-1"></i> Đăng tin
+                        </a>
+                    </li> *@
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Chat" asp-action="ChatWithAdmin">
+                                <i class="bi bi-question-circle me-1"></i> Hỗ trợ
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                <li class="nav-item">
+                        <a class="nav-link btn-post text-nowrap"
+                           asp-controller="Item" asp-action="PostItem">
+                            <i class="bi bi-plus-circle me-1"></i> Đăng tin
+                        </a>
+                    </li>
+
+                <!-- Ô TÌM KIẾM -->
+                <form class="d-flex flex-grow-1 me-2 me-lg-3"
+                      asp-controller="Item" asp-action="Search"
+                      method="get" autocomplete="off">
+                    <div class="position-relative w-100 search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="searchInput"
+                               name="keyword"
+                               placeholder="Tìm sản phẩm..."
+                               value="@(Context.Request.Query["keyword"].ToString())" />
+                        <ul id="suggestionList"
+                            class="list-group position-absolute top-100 start-0"></ul>
+                    </div>
+                </form>
+
+                <!-- ICONS NGƯỜI DÙNG -->
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="nav-icons d-flex align-items-center me-3">
+                        <a asp-controller="Chat" asp-action="MyChats"
+                           title="Chat" data-bs-toggle="tooltip">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
+                        <a asp-controller="Item" asp-action="MyFavorites"
+                           title="Yêu thích" data-bs-toggle="tooltip">
+                            <i class="bi bi-heart"></i>
+                        </a>
+                    </div>
+                }
+
+                <!-- MENU TÀI KHOẢN -->
+                <div class="navbar-nav">
+                    @if (User?.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <div class="dropdown">
+                            <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+   href="#" id="userDropdown" role="button"
+   data-bs-toggle="dropdown" aria-expanded="false">
+    <img src="@avatarPath"
+         alt="Avatar"
+         class="rounded-circle me-2"
+         width="40" height="40" />
+    <span class="fw-bold text-dark d-none d-md-inline">@User.Identity.Name</span>
+</a>
+
+
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <!-- Phần thông tin người dùng -->
+                                <li class="user-profile-section">
+
+    <img src="@avatarPath" alt="Avatar" class="rounded-circle" />
+    <h6 class="mt-3">@User.Identity.Name</h6>
+    
+    <li>
+    <div class="d-grid mt-3">
+    <a asp-controller="Premium"
+       asp-action="BuyVip"
+       class="btn btn-warning fw-bold text-dark vip-btn">
+        <i class="bi bi-star-fill me-1"></i> Nâng cấp VIP
+    </a>
+</div>
+</li>
+
+
+                                <li><hr class="dropdown-divider" /></li>
+
+                                <!-- Menu items -->
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Item" asp-action="MyFavorites">
+                                        <i class="bi bi-heart text-danger"></i> Tin đăng đã lưu
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Item" asp-action="MyItems">
+                                        <i class="bi bi-file-earmark-text"></i> Quản lý tin đăng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Item" asp-action="ViewHistory">
+                                        <i class="bi bi-clock-history"></i> Lịch sử xem tin
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+    <a class="dropdown-item" asp-controller="Premium" asp-action="MyTransactions">
+        <i class="bi bi-receipt"></i> Lịch sử giao dịch
+    </a>
+</li>
+<li>
+    <a class="dropdown-item" asp-controller="Premium" asp-action="Wallet">
+        💰 Ví & Gói dịch vụ
+    </a>
+</li>
+
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                        <i class="bi bi-person-circle"></i> Tài khoản của tôi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Chat" asp-action="ChatWithAdmin">
+                                        <i class="bi bi-headset"></i> Hỗ trợ
+                                    </a>
+                                </li>
+                                <li>
+    <a class="dropdown-item" asp-controller="Item" asp-action="MyRevenue">
+        <i class="bi bi-cash-stack"></i> Doanh thu của tôi
+    </a>
+</li>
+
+
+                                <li><hr class="dropdown-divider" /></li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                       asp-controller="Account" asp-action="Logout">
+                                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="nav-link fw-bold"
+                           asp-controller="Account" asp-action="Login">
+                            <i class="bi bi-person-circle me-1"></i> Đăng nhập
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <div class="container-fluid px-0">
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-top py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                &copy; 2025 - SecondHandSharing |
+                <a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Gợi ý tìm kiếm (dùng ItemController.SearchSuggestions: trả về List<string>)
+        const searchInput = document.getElementById("searchInput");
+        const suggestionList = document.getElementById("suggestionList");
+
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = this.value.trim();
+                suggestionList.innerHTML = "";
+
+                if (query.length === 0) return;
+
+                fetch(`/Item/SearchSuggestions?keyword=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestionList.innerHTML = "";
+
+                        if (!data || data.length === 0) {
+                            suggestionList.innerHTML =
+                                "<li class='list-group-item text-muted text-center'>Không có gợi ý</li>";
+                            return;
+                        }
+
+                        data.forEach(title => {
+                            const li = document.createElement("li");
+                            li.className = "list-group-item list-group-item-action";
+                            li.textContent = title;
+                            li.addEventListener("click", () => {
+                                // Chuyển sang trang tìm kiếm với keyword = title
+                                window.location.href =
+                                    `/Item/Search?keyword=${encodeURIComponent(title)}`;
+                            });
+                            suggestionList.appendChild(li);
+                        });
+                    })
+                    .catch(err => console.error(err));
+            });
+        }
+
+        // Đóng gợi ý khi click bên ngoài
+        document.addEventListener("click", function (e) {
+            const box = document.querySelector(".search-box");
+            if (!box || !box.contains(e.target)) {
+                suggestionList.innerHTML = "";
+            }
+        });
+
+        // Khởi tạo tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

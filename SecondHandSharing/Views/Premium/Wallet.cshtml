@@ -1,0 +1,340 @@
+@model SecondHandSharing.Models.User
+@{
+    ViewData["Title"] = "Ví của tôi";
+}
+
+<style>
+    .wallet-header {
+        background: linear-gradient(90deg, #ffcc00, #ffd633);
+        color: #222;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .wallet-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .wallet-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.85;
+    }
+
+    .vip-badge-header {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #fef3c7;
+        color: #b45309;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .balance-card {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffe6cc 100%);
+        border: 2px solid #ffcc00;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.2);
+        margin-bottom: 2rem;
+    }
+
+    .balance-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .balance-label {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 0.5rem;
+    }
+
+    .balance-amount {
+        font-size: 36px;
+        font-weight: 700;
+        color: #ff8800;
+        margin: 0;
+    }
+
+    .vip-status {
+        text-align: right;
+        font-size: 14px;
+    }
+
+    .vip-status span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .vip-status .not-vip {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .action-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .action-card .card-header {
+        background: linear-gradient(90deg, #ffcc00, #ffd633);
+        color: #222;
+        font-weight: 700;
+        padding: 1rem;
+        border: none;
+    }
+
+    .topup-form {
+        padding: 1.5rem;
+    }
+
+    .topup-form .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .topup-form .form-control {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .topup-form .form-control:focus {
+        border-color: #ffcc00;
+        box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.1);
+    }
+
+    .topup-button {
+        background: linear-gradient(90deg, #ffcc00, #ffd633);
+        border: none;
+        color: #222;
+        font-weight: 700;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .topup-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        text-align: center;
+        display: inline-block;
+        border: none;
+    }
+
+    .action-btn-primary {
+        background-color: #0066cc;
+        color: white;
+    }
+
+    .action-btn-primary:hover {
+        background-color: #0052a3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .action-btn-danger {
+        background-color: #ff6b6b;
+        color: white;
+    }
+
+    .action-btn-danger:hover {
+        background-color: #ff5252;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .action-btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .action-btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .alert-danger {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="wallet-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h2>💰 Ví của tôi</h2>
+            <p>Quản lý số dư tài khoản & các gói dịch vụ</p>
+        </div>
+
+        <div>
+            @if (Model.IsVip && Model.VipExpireAt.HasValue && Model.VipExpireAt > DateTime.Now)
+            {
+                <span class="vip-badge-header">
+                    ⭐ Tài khoản VIP &nbsp;–&nbsp; Hết hạn: @Model.VipExpireAt.Value.ToString("dd/MM/yyyy")
+                </span>
+            }
+            else
+            {
+                <span class="vip-badge-header" style="background:#e5e7eb;color:#111827;">
+                    ⚪ Chưa là VIP
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Alert -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">✓ @TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">✗ @TempData["ErrorMessage"]</div>
+    }
+
+    <!-- Số dư + trạng thái VIP -->
+    <div class="balance-card">
+        <div class="balance-top-row">
+            <div>
+                <div class="balance-label">💳 Số dư ví hiện tại</div>
+                <p class="balance-amount">@Model.WalletBalance.ToString("N0") đ</p>
+            </div>
+            <div class="vip-status">
+                @if (Model.IsVip && Model.VipExpireAt.HasValue && Model.VipExpireAt > DateTime.Now)
+                {
+                    <span>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        VIP đến: @Model.VipExpireAt.Value.ToString("dd/MM/yyyy")
+                    </span>
+                }
+                else
+                {
+                    <span class="not-vip">
+                        <i class="bi bi-star"></i> Chưa là VIP
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="small text-muted">
+            • Số dư dùng để mua gói VIP, gói đẩy tin BOOST và các dịch vụ khác trên hệ thống.
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Nạp tiền (MoMo thủ công) -->
+        <div class="col-lg-6">
+            <div class="action-card card">
+                <div class="card-header">💵 Nạp tiền qua MoMo (thủ công)</div>
+                <div class="topup-form">
+                    <form asp-controller="Premium" asp-action="TopUpMomo" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Số tiền muốn nạp (đ)</label>
+                            <input type="number"
+                                   name="amount"
+                                   class="form-control"
+                                   value="20000"
+                                   min="10000"
+                                   step="1000"
+                                   required />
+                            <small class="text-muted">Tối thiểu 10.000 đ. Sau khi thanh toán MoMo và admin xác nhận, tiền sẽ được cộng vào ví.</small>
+                        </div>
+                        <button type="submit" class="topup-button">
+                            Tiếp tục thanh toán với MoMo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hướng dẫn -->
+        <div class="col-lg-6">
+            <div class="action-card card">
+                <div class="card-header">ℹ️ Hướng dẫn sử dụng ví</div>
+                <div class="card-body p-3">
+                    <ul class="small text-muted mb-0">
+                        <li>Nạp tiền vào ví qua MoMo theo hướng dẫn hệ thống hiển thị.</li>
+                        <li>Sau khi admin đối chiếu giao dịch, số dư sẽ được cộng vào ví.</li>
+                        <li>Dùng số dư để mua gói <strong>VIP</strong> và <strong>BOOST</strong>.</li>
+                        <li>Có thể xem lại tất cả giao dịch ở mục <strong>Lịch sử giao dịch</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút hành động chính -->
+    <div class="action-buttons">
+        <a asp-controller="Premium" asp-action="BuyVip" class="action-btn action-btn-primary">
+            ⭐ Nâng cấp VIP
+        </a>
+        <a asp-controller="Premium" asp-action="BuyBoost" class="action-btn action-btn-danger">
+            🚀 Mua gói đẩy tin
+        </a>
+        <a asp-controller="Premium" asp-action="MyTransactions" class="action-btn action-btn-secondary">
+            🧾 Lịch sử giao dịch
+        </a>
+    </div>
+</div>

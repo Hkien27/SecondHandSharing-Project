@@ -1,0 +1,180 @@
+@model IEnumerable<SecondHandSharing.Models.ServicePackage>
+@{
+    ViewData["Title"] = "Nâng cấp gói VIP";
+}
+
+<style>
+    /* Tổng thể và Background */
+    .vip-section {
+        background: radial-gradient(circle at top, #323232 0%, #000000 100%);
+        min-height: 100vh;
+        padding: 60px 0;
+        color: white;
+    }
+
+    /* Tiêu đề rực rỡ */
+    .vip-title {
+        font-weight: 800;
+        background: linear-gradient(to right, #f6d365 0%, #fda085 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+
+    /* Thẻ VIP (Pricing Card) */
+    .vip-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px 25px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vip-card:hover {
+        transform: translateY(-15px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #f6d365;
+        box-shadow: 0 20px 40px rgba(246, 211, 101, 0.2);
+    }
+
+    /* Hiệu ứng tia sáng chạy qua */
+    .vip-card::before {
+        content: "";
+        position: absolute;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+        transform: rotate(45deg);
+        transition: 0.8s;
+    }
+    .vip-card:hover::before { left: 100%; }
+
+    .vip-badge {
+        background: linear-gradient(45deg, #f6d365, #fda085);
+        color: #000;
+        padding: 5px 20px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 12px;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .package-name { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .package-price { font-size: 2.8rem; font-weight: 800; color: #f6d365; margin: 20px 0; }
+    .package-price small { font-size: 1rem; color: #ccc; }
+
+    .vip-features {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+        text-align: left;
+    }
+
+    .vip-features li {
+        padding: 10px 0;
+        color: #ddd;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .vip-features li i { color: #f6d365; margin-right: 12px; font-size: 18px; }
+
+    /* Nút thanh toán */
+    .btn-vip-pay {
+        background: linear-gradient(45deg, #f6d365, #fda085);
+        border: none;
+        color: #000;
+        font-weight: 800;
+        padding: 15px;
+        border-radius: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+    }
+
+    .btn-vip-pay:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(246, 211, 101, 0.4);
+        background: #f6d365;
+    }
+
+    .alert { border-radius: 15px; border: none; }
+</style>
+
+<div class="vip-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="vip-title">Nâng Cấp VIP Account</h2>
+            <p class="text-secondary">Trở thành người bán chuyên nghiệp và nhận các đặc quyền ưu tiên tối đa</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow">
+                        <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="row g-4 justify-content-center mt-2">
+            @foreach (var p in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="vip-card shadow">
+                        <div class="vip-badge">PREMIUM MEMBER</div>
+                        <div class="package-name">@p.Name</div>
+                        <div class="package-price">
+                            @p.Price.ToString("N0")<small>đ</small>
+                        </div>
+                        <div class="text-secondary mb-3">Hiệu lực: @p.DurationDays ngày</div>
+
+                        <hr style="border-color: rgba(255,255,255,0.1)">
+
+                        <ul class="vip-features">
+                            <li><i class="fas fa-crown"></i> Huy hiệu VIP chính chủ</li>
+                            <li><i class="fas fa-bolt"></i> Ưu tiên duyệt tin ngay lập tức</li>
+                            <li><i class="fas fa-bullhorn"></i> Tăng giới hạn đăng tin lên x2</li>
+                            <li><i class="fas fa-headset"></i> Hỗ trợ kỹ thuật riêng 24/7</li>
+                            @if (!string.IsNullOrEmpty(p.Description))
+                            {
+                                <li><i class="fas fa-star"></i> @p.Description</li>
+                            }
+                        </ul>
+
+                        <form asp-action="BuyVip" method="post" onsubmit="return confirm('Hệ thống sẽ trừ tiền từ ví của bạn để đăng ký gói này?')">
+                            <input type="hidden" name="packageId" value="@p.PackageId" />
+                            <button type="submit" class="btn-vip-pay w-100">
+                                <i class="fas fa-wallet me-2"></i> Thanh toán bằng ví
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-5">
+            <p class="text-secondary small">
+                Bằng việc nâng cấp, bạn đồng ý với Điều khoản dịch vụ dành cho VIP của SecondHandSharing. <br>
+                Cần nạp thêm tiền? <a asp-action="Deposit" asp-controller="Wallet" class="text-warning text-decoration-none">Nạp tiền vào ví ngay</a>
+            </p>
+        </div>
+    </div>
+</div>
